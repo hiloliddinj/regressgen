@@ -1,0 +1,20 @@
+{
+  "id": "boltons-c1c25da3",
+  "repo": "boltons",
+  "upstream": "https://github.com/mahmoud/boltons.git",
+  "license": "BSD-3-Clause",
+  "fix_commit": "c1c25da365cf14878cf5317147e7a09b5d124df5",
+  "buggy_commit": "e66cade323f5c11cebb4bd0f099e634b245adccd",
+  "subject": "Fix off-by-one in Bits length check",
+  "src_files": [
+    "boltons/mathutils.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_mathutils.py"
+  ],
+  "src_churn": 2,
+  "pkg_dir": "boltons",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "...........F\n=================================== FAILURES ===================================\n_____________________________ test_bits_len_bound ______________________________\n\n    def test_bits_len_bound():\n        # The largest value representable in n bits is 2 ** n - 1, so 2 ** n must\n        # be rejected rather than silently producing an over-long Bits.\n        # Largest value that fits is accepted and round-trips.\n        assert Bits(3, 2).as_bin() == '11'\n        # 2 ** len_ does not fit in len_ bits and must raise.\n>       with raises(ValueError):\n             ^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE <class 'ValueError'>\n\ntests/test_mathutils.py:121: Failed\n=========================== short test summary info ============================\nFAILED tests/test_mathutils.py::test_bits_len_bound - Failed: DID NOT RAISE <...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 11 passed in 0.03s\n",
+  "fix_commit_url": "https://github.com/mahmoud/boltons/commit/c1c25da365cf14878cf5317147e7a09b5d124df5"
+}

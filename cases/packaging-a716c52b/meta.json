@@ -1,0 +1,23 @@
+{
+  "id": "packaging-a716c52b",
+  "repo": "packaging",
+  "upstream": "https://github.com/pypa/packaging.git",
+  "license": "Apache-2.0 OR BSD-2-Clause",
+  "fix_commit": "a716c52b5f3ca9b4a512f538b80ced8ee01b2775",
+  "buggy_commit": "2b06f90cbe2ffbde64ea23ca36c96c35e2aca05a",
+  "subject": "Fix uninformative error message (#830)",
+  "src_files": [
+    "src/packaging/metadata.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_metadata.py"
+  ],
+  "src_churn": 6,
+  "pkg_dir": "src/packaging",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "RES ===================================\n__________________ TestMetadata.test_disallowed_dynamic[name] __________________\n\nself = <tests.test_metadata.TestMetadata object at 0x108d863c0>\nfield_name = 'name'\n\n    @pytest.mark.parametrize(\"field_name\", [\"name\", \"version\", \"metadata-version\"])\n    def test_disallowed_dynamic(self, field_name):\n        meta = metadata.Metadata.from_raw({\"dynamic\": [field_name]}, validate=False)\n    \n        message = f\"{field_name!r} is not allowed\"\n        with pytest.raises(metadata.InvalidMetadata, match=message) as execinfo:\n>           meta.dynamic  # noqa: B018\n            ^^^^^^^^^^^^\n\ntests/test_metadata.py:613: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/packaging/metadata.py:502: in __get__\n    value = converter(value)\n            ^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <packaging.metadata._Validator object at 0x108cd5160>, value = ['name']\n\n    def _process_dynamic(self, value: list[str]) -> list[str]:\n        for dynamic_field in map(str.lower, value):\n            if dynamic_field in {\"name\", \"version\", \"metadata-version\"}:\n>               raise self._invalid_metadata(\n                    f\"{value!r} is not allowed as a dynamic field\"\nE                   packaging.metadata.InvalidMetadata: ['name'] is not allowed as a dynamic field\n\nsrc/packaging/metadata.py:591: InvalidMetadata\n\nDuring handling of the above exception, another exception occurred:\n\nself = <tests.test_metadata.TestMetadata object at 0x108d863c0>\nfield_name = 'name'\n\n    @pytest.mark.parametrize(\"field_name\", [\"name\", \"version\", \"metadata-version\"])\n    def test_disallowed_dynamic(self, field_name):\n        meta = metadata.Metadata.from_raw({\"dynamic\": [field_name]}, validate=False)\n    \n        message = f\"{field_name!r} is not allowed\"\n>       with pytest.raises(metadata.InvalidMetadata, match=message) as execinfo:\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       AssertionError: Regex pattern did not match.\nE        Regex: \"'name' is not allowed\"\nE        Input: \"['name'] is not allowed as a dynamic field\"\n\ntests/test_metadata.py:612: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_metadata.py::TestMetadata::test_disallowed_dynamic[name] - ...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 159 passed in 0.51s\n",
+  "upstream_refs": [
+    "https://github.com/pypa/packaging/issues/830"
+  ],
+  "fix_commit_url": "https://github.com/pypa/packaging/commit/a716c52b5f3ca9b4a512f538b80ced8ee01b2775"
+}

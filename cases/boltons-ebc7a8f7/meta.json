@@ -1,0 +1,20 @@
+{
+  "id": "boltons-ebc7a8f7",
+  "repo": "boltons",
+  "upstream": "https://github.com/mahmoud/boltons.git",
+  "license": "BSD-3-Clause",
+  "fix_commit": "ebc7a8f776debfa33f0b380b57a444bca75a251b",
+  "buggy_commit": "bba729bf4539afc993a6410bdf8074b28707004a",
+  "subject": "Fix copy.copy/copy.deepcopy collapsing OrderedMultiDict values",
+  "src_files": [
+    "boltons/dictutils.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_dictutils.py"
+  ],
+  "src_churn": 8,
+  "pkg_dir": "boltons",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "......F\n=================================== FAILURES ===================================\n_____________________________ test_omd_copy_module _____________________________\n\n    def test_omd_copy_module():\n        # copy.copy / copy.deepcopy must preserve multiple values per key. The\n        # inherited dict __reduce_ex__ used to reapply a dictitems iterator after\n        # __setstate__, collapsing each key down to a single value.\n        import copy\n    \n        omd = OMD([('a', 1), ('a', 2), ('b', 3)])\n    \n        shallow = copy.copy(omd)\n>       assert shallow == omd\nE       AssertionError: assert OrderedMultiD...2), ('b', 3)]) == OrderedMultiD...2), ('b', 3)])\nE         \nE         Omitting 2 identical items, use -vv to show\nE         Use -v to get more diff\n\ntests/test_dictutils.py:113: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_dictutils.py::test_omd_copy_module - AssertionError: assert...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 6 passed in 0.14s\n",
+  "fix_commit_url": "https://github.com/mahmoud/boltons/commit/ebc7a8f776debfa33f0b380b57a444bca75a251b"
+}

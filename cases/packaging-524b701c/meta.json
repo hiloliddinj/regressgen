@@ -1,0 +1,23 @@
+{
+  "id": "packaging-524b701c",
+  "repo": "packaging",
+  "upstream": "https://github.com/pypa/packaging.git",
+  "license": "Apache-2.0 OR BSD-2-Clause",
+  "fix_commit": "524b701c6e30fc4da9355117367273f591c6de72",
+  "buggy_commit": "b509bef6a4573595b23a97ecbfe569000918157f",
+  "subject": "parse_{sdist,wheel}_filename: don't raise InvalidVersion (#721)",
+  "src_files": [
+    "src/packaging/utils.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_utils.py"
+  ],
+  "src_churn": 18,
+  "pkg_dir": "src/packaging",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "............................................F\n=================================== FAILURES ===================================\n________ test_parse_wheel_invalid_filename[foobar-1.x-py3-none-any.whl] ________\n\nfilename = 'foobar-1.x-py3-none-any.whl'\n\n    @pytest.mark.parametrize(\n        (\"filename\"),\n        [\n            (\"foo-1.0.whl\"),  # Missing tags\n            (\"foo-1.0-py3-none-any.wheel\"),  # Incorrect file extension (`.wheel`)\n            (\"foo__bar-1.0-py3-none-any.whl\"),  # Invalid name (`__`)\n            (\"foo#bar-1.0-py3-none-any.whl\"),  # Invalid name (`#`)\n            (\"foobar-1.x-py3-none-any.whl\"),  # Invalid version (`1.x`)\n            # Build number doesn't start with a digit (`abc`)\n            (\"foo-1.0-abc-py3-none-any.whl\"),\n            (\"foo-1.0-200-py3-none-any-junk.whl\"),  # Too many dashes (`-junk`)\n        ],\n    )\n    def test_parse_wheel_invalid_filename(filename):\n        with pytest.raises(InvalidWheelFilename):\n>           parse_wheel_filename(filename)\n\ntests/test_utils.py:147: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/packaging/utils.py:124: in parse_wheel_filename\n    version = Version(parts[1])\n              ^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <[AttributeError(\"'Version' object has no attribute '_version'\") raised in repr()] Version object at 0x10760a960>\nversion = '1.x'\n\n    def __init__(self, version: str) -> None:\n        \"\"\"Initialize a Version object.\n    \n        :param version:\n            The string representation of a version which will be parsed and normalized\n            before use.\n        :raises InvalidVersion:\n            If the ``version`` does not conform to PEP 440 in any way then this\n            exception will be raised.\n        \"\"\"\n    \n        # Validate the version and parse it into pieces\n        match = self._regex.search(version)\n        if not match:\n>           raise InvalidVersion(f\"Invalid version: '{version}'\")\nE           packaging.version.InvalidVersion: Invalid version: '1.x'\n\nsrc/packaging/version.py:200: InvalidVersion\n=========================== short test summary info ============================\nFAILED tests/test_utils.py::test_parse_wheel_invalid_filename[foobar-1.x-py3-none-any.whl]\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 44 passed in 0.40s\n",
+  "upstream_refs": [
+    "https://github.com/pypa/packaging/issues/721"
+  ],
+  "fix_commit_url": "https://github.com/pypa/packaging/commit/524b701c6e30fc4da9355117367273f591c6de72"
+}

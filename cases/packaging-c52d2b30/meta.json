@@ -1,0 +1,23 @@
+{
+  "id": "packaging-c52d2b30",
+  "repo": "packaging",
+  "upstream": "https://github.com/pypa/packaging.git",
+  "license": "Apache-2.0 OR BSD-2-Clause",
+  "fix_commit": "c52d2b30465ace6d11f54c01b6ea30419a94b5ef",
+  "buggy_commit": "cc0c65cb43537491ba468da1ba9b9f49c932d9eb",
+  "subject": "Fix specifier matching when it is long and has an epoch (#712)",
+  "src_files": [
+    "src/packaging/specifiers.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_specifiers.py"
+  ],
+  "src_churn": 31,
+  "pkg_dir": "src/packaging",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "),\n                (\"2.0c1.post1.dev1\", \">=2\"),\n                (\"2.0rc1\", \">=2\"),\n                (\"1\", \">=2\"),\n                # Test the less than equal operation\n                (\"2.0.post1\", \"<=2\"),\n                (\"2.0.post1.dev1\", \"<=2\"),\n                (\"3\", \"<=2\"),\n                # Test the greater than operation\n                (\"1\", \">2\"),\n                (\"2.0.dev1\", \">2\"),\n                (\"2.0a1\", \">2\"),\n                (\"2.0a1.post1\", \">2\"),\n                (\"2.0b1\", \">2\"),\n                (\"2.0b1.dev1\", \">2\"),\n                (\"2.0c1\", \">2\"),\n                (\"2.0c1.post1.dev1\", \">2\"),\n                (\"2.0rc1\", \">2\"),\n                (\"2.0\", \">2\"),\n                (\"2.0.post1\", \">2\"),\n                (\"2.0.post1.dev1\", \">2\"),\n                (\"2.0+local.version\", \">2\"),\n                # Test the less than operation\n                (\"2.0.dev1\", \"<2\"),\n                (\"2.0a1\", \"<2\"),\n                (\"2.0a1.post1\", \"<2\"),\n                (\"2.0b1\", \"<2\"),\n                (\"2.0b2.dev1\", \"<2\"),\n                (\"2.0c1\", \"<2\"),\n                (\"2.0c1.post1.dev1\", \"<2\"),\n                (\"2.0rc1\", \"<2\"),\n                (\"2.0\", \"<2\"),\n                (\"2.post1\", \"<2\"),\n                (\"2.post1.dev1\", \"<2\"),\n                (\"3\", \"<2\"),\n                # Test the compatibility operation\n                (\"2.0\", \"~=1.0\"),\n                (\"1.1.0\", \"~=1.0.0\"),\n                (\"1.1.post1\", \"~=1.0.0\"),\n                # Test that epochs are handled sanely\n                (\"1.0\", \"~=2!1.0\"),\n                (\"2!1.0\", \"~=1.0\"),\n                (\"2!1.0\", \"==1.0\"),\n                (\"1.0\", \"==2!1.0\"),\n                (\"2!1.0\", \"==1.0.0.*\"),\n                (\"1.0\", \"==2!1.0.0.*\"),\n                (\"2!1.0\", \"==1.*\"),\n                (\"1.0\", \"==2!1.*\"),\n                (\"2!1.0\", \"!=2!1.0\"),\n            ]\n        ],\n    )\n    def test_specifiers(self, version, spec, expected):\n        spec = Specifier(spec, prereleases=True)\n    \n        if expected:\n            # Test that the plain string form works\n>           assert version in spec\nE           AssertionError: assert '2!1.0.0' in <Specifier('==2!1.0.0.0.*', prereleases=True)>\n\ntests/test_specifiers.py:484: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_specifiers.py::TestSpecifier::test_specifiers[2!1.0.0-==2!1.0.0.0.*-True]\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 386 passed in 0.59s\n",
+  "upstream_refs": [
+    "https://github.com/pypa/packaging/issues/712"
+  ],
+  "fix_commit_url": "https://github.com/pypa/packaging/commit/c52d2b30465ace6d11f54c01b6ea30419a94b5ef"
+}

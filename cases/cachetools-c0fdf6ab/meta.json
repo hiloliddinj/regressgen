@@ -1,0 +1,20 @@
+{
+  "id": "cachetools-c0fdf6ab",
+  "repo": "cachetools",
+  "upstream": "https://github.com/tkem/cachetools.git",
+  "license": "MIT",
+  "fix_commit": "c0fdf6abab38040947d6fe2e38c507401d5e2350",
+  "buggy_commit": "978d34d40cdbf3b4cbfce104f3166032cc4ea028",
+  "subject": "Fix TLRUCache silently keeping stale value on expired overwrite",
+  "src_files": [
+    "src/cachetools/__init__.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_tlru.py"
+  ],
+  "src_churn": 18,
+  "pkg_dir": "src/cachetools",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "...........F\n=================================== FAILURES ===================================\n______________ TLRUCacheTest.test_overwrite_existing_with_expired ______________\n\nself = <tests.test_tlru.TLRUCacheTest testMethod=test_overwrite_existing_with_expired>\n\n    def test_overwrite_existing_with_expired(self):\n        # Overwriting an existing key with an already-expired value must not\n        # silently retain the previous value: the assignment cannot store the\n        # new (dead-on-arrival) value, so the key has to be evicted instead.\n        def ttu(_k, value, t):\n            return t + value\n    \n        cache = TLRUCache[int, int, int](maxsize=2, ttu=ttu, timer=Timer())\n        cache[1] = 5\n        self.assertEqual(cache[1], 5)\n        self.assertEqual(len(cache), 1)\n        self.assertEqual(cache.currsize, 1)\n    \n        cache[1] = 0  # ttu -> t, i.e. not (t < t): immediately expired\n>       self.assertNotIn(1, cache)\nE       AssertionError: 1 unexpectedly found in TLRUCache({1: 5}, maxsize=2, currsize=1)\n\ntests/test_tlru.py:161: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_tlru.py::TLRUCacheTest::test_overwrite_existing_with_expired\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 11 passed in 0.03s\n",
+  "fix_commit_url": "https://github.com/tkem/cachetools/commit/c0fdf6abab38040947d6fe2e38c507401d5e2350"
+}

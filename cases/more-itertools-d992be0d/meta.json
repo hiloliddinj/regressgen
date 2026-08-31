@@ -1,0 +1,20 @@
+{
+  "id": "more-itertools-d992be0d",
+  "repo": "more-itertools",
+  "upstream": "https://github.com/more-itertools/more-itertools.git",
+  "license": "MIT",
+  "fix_commit": "d992be0de9383ddcaae3a24866a2d96b52132b07",
+  "buggy_commit": "cb75bb9c55f7ed3e77ce599097e1ba8da411746d",
+  "subject": "Fix stability in running_min and running_max",
+  "src_files": [
+    "more_itertools/recipes.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_more.py"
+  ],
+  "src_churn": 50,
+  "pkg_dir": "more_itertools",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "........................................................................ [ 12%]\n........................................................................ [ 24%]\n........................................................................ [ 36%]\n........................................................................ [ 48%]\n........................................................................ [ 61%]\n........................................................................ [ 73%]\n........................................................................ [ 85%]\n........................................................................ [ 97%]\n..F\n=================================== FAILURES ===================================\n________________________ TestRunningMin.test_stability _________________________\n\nself = <tests.test_more.TestRunningMin testMethod=test_stability>\n\n    def test_stability(self):\n        # min(x, y) returns x when x == y\n        data = [0, 0.0, Fraction(0)]\n>       self.assertEqual(\n            list(map(type, mi.running_min(data, maxlen=2))),\n            [type(min(data[0:1])), type(min(data[0:2])), type(min(data[1:3]))],\n        )\nE       AssertionError: Lists differ: [<class 'int'>, <class 'float'>, <class 'fractions.Fraction'>] != [<class 'int'>, <class 'int'>, <class 'float'>]\nE       \nE       First differing element 1:\nE       <class 'float'>\nE       <class 'int'>\nE       \nE       - [<class 'int'>, <class 'float'>, <class 'fractions.Fraction'>]\nE       + [<class 'int'>, <class 'int'>, <class 'float'>]\n\ntests/test_more.py:6829: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_more.py::TestRunningMin::test_stability - AssertionError: L...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 578 passed in 3.04s\n",
+  "fix_commit_url": "https://github.com/more-itertools/more-itertools/commit/d992be0de9383ddcaae3a24866a2d96b52132b07"
+}

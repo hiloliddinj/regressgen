@@ -1,0 +1,20 @@
+{
+  "id": "more-itertools-d64a7d69",
+  "repo": "more-itertools",
+  "upstream": "https://github.com/more-itertools/more-itertools.git",
+  "license": "MIT",
+  "fix_commit": "d64a7d6971bfd31c5719d02f0001e58de85683d1",
+  "buggy_commit": "5d946b3590bfe92f1465c1b9b9830dd434745c84",
+  "subject": "Raise for negative tail sizes on sized iterables",
+  "src_files": [
+    "more_itertools/recipes.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_recipes.py"
+  ],
+  "src_churn": 3,
+  "pkg_dir": "more_itertools",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "............F\n=================================== FAILURES ===================================\n________________________ TailTests.test_sized_negative _________________________\n\nself = <tests.test_recipes.TailTests testMethod=test_sized_negative>\n\n    def test_sized_negative(self):\n        \"\"\"Negative tail sizes should raise for sized iterables.\"\"\"\n>       self.assertRaises(ValueError, lambda: list(mi.tail(-1, 'ABCDEFG')))\nE       AssertionError: ValueError not raised by <lambda>\n\ntests/test_recipes.py:101: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_recipes.py::TailTests::test_sized_negative - AssertionError...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 12 passed in 0.15s\n",
+  "fix_commit_url": "https://github.com/more-itertools/more-itertools/commit/d64a7d6971bfd31c5719d02f0001e58de85683d1"
+}

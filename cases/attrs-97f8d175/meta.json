@@ -1,0 +1,23 @@
+{
+  "id": "attrs-97f8d175",
+  "repo": "attrs",
+  "upstream": "https://github.com/python-attrs/attrs.git",
+  "license": "MIT",
+  "fix_commit": "97f8d175656bc03c373a1c9038048a4d312c307c",
+  "buggy_commit": "6851ab593cd25f3c14393e9355d57d22bec2a074",
+  "subject": "Fix ClassVar forward reference detection (#1593)",
+  "src_files": [
+    "src/attr/_make.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_annotations.py"
+  ],
+  "src_churn": 1,
+  "pkg_dir": "src/attr",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": ".........................ss......................F\n=================================== FAILURES ===================================\n__________________________ test_is_class_var[annot4] ___________________________\n\nannot = ForwardRef('ClassVar[str]')\n\n    @pytest.mark.parametrize(\n        \"annot\",\n        [\n            typing.ClassVar,\n            \"typing.ClassVar\",\n            \"'typing.ClassVar[dict]'\",\n            \"t.ClassVar[int]\",\n            typing.ForwardRef(\"ClassVar[str]\"),\n        ],\n    )\n    def test_is_class_var(annot):\n        \"\"\"\n        ClassVars are detected, even if they're a string or quoted.\n        \"\"\"\n>       assert _is_class_var(annot)\nE       AssertionError: assert False\nE        +  where False = _is_class_var(ForwardRef('ClassVar[str]'))\n\ntests/test_annotations.py:718: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_annotations.py::test_is_class_var[annot4] - AssertionError:...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 47 passed, 2 skipped in 0.09s\n",
+  "upstream_refs": [
+    "https://github.com/python-attrs/attrs/issues/1593"
+  ],
+  "fix_commit_url": "https://github.com/python-attrs/attrs/commit/97f8d175656bc03c373a1c9038048a4d312c307c"
+}

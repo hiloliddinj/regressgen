@@ -1,0 +1,23 @@
+{
+  "id": "semver-4b03f867",
+  "repo": "semver",
+  "upstream": "https://github.com/python-semver/python-semver.git",
+  "license": "BSD-3-Clause",
+  "fix_commit": "4b03f867a3deaecb07240f471fed9bf9c9072629",
+  "buggy_commit": "757ada63d134b9b414b1df35d0b9a890e52f4fab",
+  "subject": "Fix #426: call subclass when deriving from Version",
+  "src_files": [
+    "src/semver/version.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_subclass.py"
+  ],
+  "src_churn": 6,
+  "pkg_dir": "src/semver",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": ".F\n=================================== FAILURES ===================================\n__________________________ test_replace_from_subclass __________________________\n\n    def test_replace_from_subclass():\n        # Issue#426\n        # Taken from the example \"Creating Subclasses from Version\"\n        class SemVerWithVPrefix(Version):\n            \"\"\"\n            A subclass of Version which allows a \"v\" prefix\n            \"\"\"\n    \n            @classmethod\n            def parse(cls, version: str) -> \"SemVerWithVPrefix\":\n                \"\"\"\n                Parse version string to a Version instance.\n    \n                :param version: version string with \"v\" or \"V\" prefix\n                :raises ValueError: when version does not start with \"v\" or \"V\"\n                :return: a new instance\n                \"\"\"\n                if not version[0] in (\"v\", \"V\"):\n                    raise ValueError(\n                        f\"{version!r}: not a valid semantic version tag. \"\n                        \"Must start with 'v' or 'V'\"\n                    )\n                return super().parse(version[1:], optional_minor_and_patch=True)\n    \n            def __str__(self) -> str:\n                # Reconstruct the tag\n                return \"v\" + super().__str__()\n    \n        version = SemVerWithVPrefix.parse(\"v1.1.0\")\n        dev_version = version.replace(prerelease=\"dev.0\")\n    \n>       assert str(dev_version) == \"v1.1.0-dev.0\"\nE       AssertionError: assert '1.1.0-dev.0' == 'v1.1.0-dev.0'\nE         \nE         - v1.1.0-dev.0\nE         ? -\nE         + 1.1.0-dev.0\n\ntests/test_subclass.py:53: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_subclass.py::test_replace_from_subclass - AssertionError: a...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 1 passed in 0.37s\n",
+  "upstream_refs": [
+    "https://github.com/python-semver/python-semver/issues/426"
+  ],
+  "fix_commit_url": "https://github.com/python-semver/python-semver/commit/4b03f867a3deaecb07240f471fed9bf9c9072629"
+}

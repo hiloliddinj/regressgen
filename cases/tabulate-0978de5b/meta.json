@@ -1,0 +1,20 @@
+{
+  "id": "tabulate-0978de5b",
+  "repo": "tabulate",
+  "upstream": "https://github.com/astanin/python-tabulate.git",
+  "license": "MIT",
+  "fix_commit": "0978de5bb3a72d9b285d0e305aaf4574e9ffd5bd",
+  "buggy_commit": "95ae5eb61ef969749e904c90ab429003238d6212",
+  "subject": "Fix separating line with dataclasses",
+  "src_files": [
+    "tabulate/__init__.py"
+  ],
+  "oracle_test_files": [
+    "test/test_input.py"
+  ],
+  "src_churn": 7,
+  "pkg_dir": "tabulate",
+  "tests_dir": "test",
+  "oracle_failure_excerpt": "tdict.keys())\n                    uniq_keys.update(keys)\n                    rows = rows[1:]\n                for row in rows:\n                    for k in row.keys():\n                        # Save unique items in input order\n                        if k not in uniq_keys:\n                            keys.append(k)\n                            uniq_keys.add(k)\n                if headers == \"keys\":\n                    headers = keys\n                elif isinstance(headers, dict):\n                    # a dict of headers for a list of dicts\n                    headers = [headers.get(k, k) for k in keys]\n                    headers = list(map(str, headers))\n                elif headers == \"firstrow\":\n                    if len(rows) > 0:\n                        headers = [firstdict.get(k, k) for k in keys]\n                        headers = list(map(str, headers))\n                    else:\n                        headers = []\n                elif headers:\n                    raise ValueError(\n                        \"headers for a list of dicts is not a dict or a keyword\"\n                    )\n                rows = [[row.get(k) for k in keys] for row in rows]\n    \n            elif (\n                headers == \"keys\"\n                and hasattr(tabular_data, \"description\")\n                and hasattr(tabular_data, \"fetchone\")\n                and hasattr(tabular_data, \"rowcount\")\n            ):\n                # Python Database API cursor object (PEP 0249)\n                # print tabulate(cursor, headers='keys')\n                headers = [column[0] for column in tabular_data.description]\n    \n            elif (\n                dataclasses is not None\n                and len(rows) > 0\n                and dataclasses.is_dataclass(rows[0])\n            ):\n                # Python 3.7+'s dataclass\n                field_names = [field.name for field in dataclasses.fields(rows[0])]\n                if headers == \"keys\":\n                    headers = field_names\n>               rows = [[getattr(row, f) for f in field_names] for row in rows]\n                         ^^^^^^^^^^^^^^^\nE               AttributeError: 'str' object has no attribute 'name'\n\ntabulate/__init__.py:1464: AttributeError\n=========================== short test summary info ============================\nFAILED test/test_input.py::test_py37orlater_list_of_dataclasses_with_separating_line\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 22 passed, 9 skipped in 0.12s\n",
+  "fix_commit_url": "https://github.com/astanin/python-tabulate/commit/0978de5bb3a72d9b285d0e305aaf4574e9ffd5bd"
+}

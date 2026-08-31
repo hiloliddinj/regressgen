@@ -1,0 +1,20 @@
+{
+  "id": "semver-bc41390f",
+  "repo": "semver",
+  "upstream": "https://github.com/python-semver/python-semver.git",
+  "license": "BSD-3-Clause",
+  "fix_commit": "bc41390f388d88114e8529b17fe145c5af390cbb",
+  "buggy_commit": "bd97cfcd595c882d92b73430d4bf5c880d6062dc",
+  "subject": "Fix comparison with subclasses",
+  "src_files": [
+    "src/semver/version.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_subclass.py"
+  ],
+  "src_churn": 2,
+  "pkg_dir": "src/semver",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "est_compare_with_subclass __________________________\n\n    def test_compare_with_subclass():\n        class SemVerSubclass(Version):\n            pass\n    \n        with pytest.raises(TypeError):\n            SemVerSubclass.parse(\"1.0.0\").compare(Version.parse(\"1.0.0\"))\n        assert Version.parse(\"1.0.0\").compare(SemVerSubclass.parse(\"1.0.0\")) == 0\n    \n        assert (\n>           SemVerSubclass.parse(\"1.0.0\").__eq__(Version.parse(\"1.0.0\")) is NotImplemented\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        )\n\ntests/test_subclass.py:66: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/semver/version.py:52: in wrapper\n    return operator(self, other)\n           ^^^^^^^^^^^^^^^^^^^^^\nsrc/semver/version.py:467: in __eq__\n    return self.compare(other) == 0\n           ^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = SemVerSubclass(major=1, minor=0, patch=0, prerelease=None, build=None)\nother = Version(major=1, minor=0, patch=0, prerelease=None, build=None)\n\n    def compare(self, other: Comparable) -> int:\n        \"\"\"\n        Compare self with other.\n    \n        :param other: the second version\n        :return: The return value is negative if ver1 < ver2,\n             zero if ver1 == ver2 and strictly positive if ver1 > ver2\n    \n        >>> Version.parse(\"1.0.0\").compare(\"2.0.0\")\n        -1\n        >>> Version.parse(\"2.0.0\").compare(\"1.0.0\")\n        1\n        >>> Version.parse(\"2.0.0\").compare(\"2.0.0\")\n        0\n        \"\"\"\n        cls = type(self)\n        if isinstance(other, String.__args__):  # type: ignore\n            other = cls.parse(other)\n        elif isinstance(other, dict):\n            other = cls(**other)\n        elif isinstance(other, (tuple, list)):\n            other = cls(*other)\n        elif not isinstance(other, cls):\n>           raise TypeError(\n                f\"Expected str, bytes, dict, tuple, list, or {cls.__name__} instance, \"\n                f\"but got {type(other)}\"\n            )\nE           TypeError: Expected str, bytes, dict, tuple, list, or SemVerSubclass instance, but got <class 'semver.version.Version'>\n\nsrc/semver/version.py:400: TypeError\n=========================== short test summary info ============================\nFAILED tests/test_subclass.py::test_compare_with_subclass - TypeError: Expect...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 2 passed in 0.40s\n",
+  "fix_commit_url": "https://github.com/python-semver/python-semver/commit/bc41390f388d88114e8529b17fe145c5af390cbb"
+}

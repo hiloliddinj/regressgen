@@ -1,0 +1,23 @@
+{
+  "id": "tabulate-5373ebfa",
+  "repo": "tabulate",
+  "upstream": "https://github.com/astanin/python-tabulate.git",
+  "license": "MIT",
+  "fix_commit": "5373ebfa9568db65cf6b9a4edfe22662d028ef12",
+  "buggy_commit": "8f32086665760bcb2bd729623dc58a8da259a68b",
+  "subject": "fix #176 - implement Decimal fixed-point support",
+  "src_files": [
+    "tabulate/__init__.py"
+  ],
+  "oracle_test_files": [
+    "test/test_output.py"
+  ],
+  "src_churn": 3,
+  "pkg_dir": "tabulate",
+  "tests_dir": "test",
+  "oracle_failure_excerpt": ".........s.......................s......s......s......s......s......s... [ 36%]\n...s.......s....s..s..s..s..s..s..s..................................... [ 72%]\n....................s.....F\n=================================== FAILURES ===================================\n____________________________ test_floatfmt_decimal _____________________________\n\n    def test_floatfmt_decimal():\n        result = tabulate(\n            [[Decimal(\"99999998999.999980\"), 1234.5, 1.2345678, \"inf\"]],\n            floatfmt=\".6f\",\n            tablefmt=\"plain\",\n        )\n        expected = \"99999998999.999980  1234.500000  1.234568  inf\"\n>       assert_equal(expected, result)\n\ntest/test_output.py:2868: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nexpected = '99999998999.999980  1234.500000  1.234568  inf'\nresult = '99999998999.999985  1234.500000  1.234568  inf'\n\n    def assert_equal(expected, result):\n        print(\"Expected:\\n%r\\n\" % expected)\n        print(\"Got:\\n%r\\n\" % result)\n>       assert expected == result\n               ^^^^^^^^^^^^^^^^^^\nE       AssertionError\n\ntest/common.py:9: AssertionError\n----------------------------- Captured stdout call -----------------------------\nExpected:\n'99999998999.999980  1234.500000  1.234568  inf'\n\nGot:\n'99999998999.999985  1234.500000  1.234568  inf'\n\n=========================== short test summary info ============================\nFAILED test/test_output.py::test_floatfmt_decimal - AssertionError\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 153 passed, 17 skipped in 0.12s\n",
+  "upstream_refs": [
+    "https://github.com/astanin/python-tabulate/issues/176"
+  ],
+  "fix_commit_url": "https://github.com/astanin/python-tabulate/commit/5373ebfa9568db65cf6b9a4edfe22662d028ef12"
+}

@@ -1,0 +1,23 @@
+{
+  "id": "cachetools-57d2e481",
+  "repo": "cachetools",
+  "upstream": "https://github.com/tkem/cachetools.git",
+  "license": "MIT",
+  "fix_commit": "57d2e4813d9801f97034559e22428bac6f7c6c9b",
+  "buggy_commit": "8011b71949e8d8d81a71359cca9477d67a2c9c0b",
+  "subject": "Fix #387: Handle obj=None case for inspection in _DescriptorBase.",
+  "src_files": [
+    "src/cachetools/_cachedmethod.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_cachedmethod.py"
+  ],
+  "src_churn": 7,
+  "pkg_dir": "src/cachetools",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "^^^^^^^^^^^^^^^^^\n\ntests/test_cachedmethod.py:685: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n../../../../../.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/unittest/mock.py:2773: in create_autospec\n    mock = Klass(parent=_parent, _new_parent=_parent, _new_name=_new_name,\n../../../../../.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/unittest/mock.py:2139: in __init__\n    _safe_super(MagicMixin, self).__init__(*args, **kw)\n../../../../../.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/unittest/mock.py:460: in __init__\n    self._mock_add_spec(spec, spec_set, _spec_as_instance, _eat_self)\n../../../../../.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/unittest/mock.py:529: in _mock_add_spec\n    if iscoroutinefunction(getattr(spec, attr, None)):\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <cachetools._cachedmethod._condition_info.<locals>.Descriptor object at 0x10700c230>\nobj = None, objtype = <class 'tests.test_cachedmethod.Cached'>\n\n    def __get__(self, obj, objtype=None):\n        wrapper = self.Wrapper(obj)\n        if self.__attrname is not None:\n            # replace descriptor instance with wrapper in instance dict\n            try:\n                # In case of a race condition where another thread already replaced\n                # the descriptor, prefer the initial wrapper.\n                wrapper = obj.__dict__.setdefault(self.__attrname, wrapper)\n            except AttributeError:\n                # not all objects have __dict__ (e.g. class defines slots)\n                msg = (\n                    f\"No '__dict__' attribute on {type(obj).__name__!r} \"\n                    f\"instance to cache {self.__attrname!r} property.\"\n                )\n                if self.__deprecated:\n                    _warn_instance_dict(msg, 3)\n                else:\n>                   raise TypeError(msg) from None\nE                   TypeError: No '__dict__' attribute on 'NoneType' instance to cache 'get_cond_info' property.\n\nsrc/cachetools/_cachedmethod.py:95: TypeError\n=========================== short test summary info ============================\nFAILED tests/test_cachedmethod.py::AutospecTest::test_autospec_no_warnings - ...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 45 passed in 0.10s\n",
+  "upstream_refs": [
+    "https://github.com/tkem/cachetools/issues/387"
+  ],
+  "fix_commit_url": "https://github.com/tkem/cachetools/commit/57d2e4813d9801f97034559e22428bac6f7c6c9b"
+}

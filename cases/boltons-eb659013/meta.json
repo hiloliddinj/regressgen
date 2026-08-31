@@ -1,0 +1,20 @@
+{
+  "id": "boltons-eb659013",
+  "repo": "boltons",
+  "upstream": "https://github.com/mahmoud/boltons.git",
+  "license": "BSD-3-Clause",
+  "fix_commit": "eb659013fbe4f355561fbead2116868366ba6e26",
+  "buggy_commit": "e66cade323f5c11cebb4bd0f099e634b245adccd",
+  "subject": "tableutils: fix Table.to_text crashes on degenerate tables and headers",
+  "src_files": [
+    "boltons/tableutils.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_tableutils.py"
+  ],
+  "src_churn": 17,
+  "pkg_dir": "boltons",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "...F\n=================================== FAILURES ===================================\n___________________________ test_to_text_empty_table ___________________________\n\n    def test_to_text_empty_table():\n        # used to raise ValueError from max() over an empty sequence\n>       assert Table([[]]).to_text() == ''\n               ^^^^^^^^^^^\n\ntests/test_tableutils.py:60: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nboltons/tableutils.py:273: in __init__\n    self.extend(data)\nboltons/tableutils.py:282: in extend\n    self._set_width()\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = Table([]), reset = False\n\n    def _set_width(self, reset=False):\n        if reset:\n            self._width = 0\n        if self._width:\n            return\n        if self.headers:\n            self._width = len(self.headers)\n            return\n>       self._width = max([len(d) for d in self._data])\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       ValueError: max() iterable argument is empty\n\nboltons/tableutils.py:293: ValueError\n=========================== short test summary info ============================\nFAILED tests/test_tableutils.py::test_to_text_empty_table - ValueError: max()...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 3 passed in 0.03s\n",
+  "fix_commit_url": "https://github.com/mahmoud/boltons/commit/eb659013fbe4f355561fbead2116868366ba6e26"
+}

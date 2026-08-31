@@ -1,0 +1,20 @@
+{
+  "id": "more-itertools-073d2342",
+  "repo": "more-itertools",
+  "upstream": "https://github.com/more-itertools/more-itertools.git",
+  "license": "MIT",
+  "fix_commit": "073d23421b60e05a99872e7b174902f4aa151f31",
+  "buggy_commit": "b110a77364ec0ed5bb06194b591f97a54591dbc9",
+  "subject": "Fix support for iterators using \"repeat\"",
+  "src_files": [
+    "more_itertools/more.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_more.py"
+  ],
+  "src_churn": 4,
+  "pkg_dir": "more_itertools",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": " FAILURES ===================================\n_________________________ NthProductTests.test_repeat __________________________\n\nself = <tests.test_more.NthProductTests testMethod=test_repeat>\n\n    def test_repeat(self):\n        self.assertEqual(\n            mi.nth_product(1234, 'abcde', repeat=5),\n            mi.nth_product(1234, 'abcde', 'abcde', 'abcde', 'abcde', 'abcde'),\n        )\n        self.assertEqual(\n            mi.nth_product(123, 'AB', 'CD', 'EFG', repeat=2),\n            mi.nth_product(123, 'AB', 'CD', 'EFG', 'AB', 'CD', 'EFG'),\n        )\n        self.assertEqual(\n>           mi.nth_product(123, iter('AB'), iter('CD'), iter('EFG'), repeat=2),\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n            mi.nth_product(123, 'AB', 'CD', 'EFG', 'AB', 'CD', 'EFG'),\n        )\n\ntests/test_more.py:4868: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nindex = 123, repeat = 2\niterables = (<str_ascii_iterator object at 0x10b94bc10>, <str_ascii_iterator object at 0x10b948580>, <str_ascii_iterator object at 0x10b949450>)\npools = (('E', 'F', 'G'), ('C', 'D'), ('A', 'B'), (), (), ())\nns = (3, 2, 2, 0, 0, 0)\n\n    def nth_product(index, *iterables, repeat=1):\n        \"\"\"Equivalent to ``list(product(*iterables, repeat=repeat))[index]``.\n    \n        The products of *iterables* can be ordered lexicographically.\n        :func:`nth_product` computes the product at sort position *index* without\n        computing the previous products.\n    \n            >>> nth_product(8, range(2), range(2), range(2), range(2))\n            (1, 0, 0, 0)\n    \n        The *repeat* keyword argument specifies the number of repetitions\n        of the iterables.  The above example is equivalent to::\n    \n            >>> nth_product(8, range(2), repeat=4)\n            (1, 0, 0, 0)\n    \n        ``IndexError`` will be raised if the given *index* is invalid.\n        \"\"\"\n        pools = tuple(map(tuple, reversed(iterables * repeat)))\n        ns = tuple(map(len, pools))\n    \n        c = reduce(mul, ns)\n    \n        if index < 0:\n            index += c\n    \n        if not 0 <= index < c:\n>           raise IndexError\nE           IndexError\n\nmore_itertools/more.py:4210: IndexError\n=========================== short test summary info ============================\nFAILED tests/test_more.py::NthProductTests::test_repeat - IndexError\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 399 passed in 1.08s\n",
+  "fix_commit_url": "https://github.com/more-itertools/more-itertools/commit/073d23421b60e05a99872e7b174902f4aa151f31"
+}

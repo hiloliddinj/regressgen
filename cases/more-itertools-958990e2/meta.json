@@ -1,0 +1,20 @@
+{
+  "id": "more-itertools-958990e2",
+  "repo": "more-itertools",
+  "upstream": "https://github.com/more-itertools/more-itertools.git",
+  "license": "MIT",
+  "fix_commit": "958990e22c4ab6daf434d89cf2b86d7a4a7a9e3c",
+  "buggy_commit": "ed86a1528aa015f219f8d3385ea2ebd3f63a5212",
+  "subject": "Raise for negative slice sizes in sliced()",
+  "src_files": [
+    "more_itertools/more.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_more.py"
+  ],
+  "src_churn": 3,
+  "pkg_dir": "more_itertools",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "........................................................................ [ 12%]\n........................................................F\n=================================== FAILURES ===================================\n__________________________ SlicedTests.test_negative ___________________________\n\nself = <tests.test_more.SlicedTests testMethod=test_negative>\n\n    def test_negative(self):\n        \"\"\"Negative slice sizes should raise instead of silently\n        yielding a wrong result.\"\"\"\n        seq = 'ABCDEFG'\n>       self.assertRaises(ValueError, lambda: list(mi.sliced(seq, -1)))\nE       AssertionError: ValueError not raised by <lambda>\n\ntests/test_more.py:1414: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_more.py::SlicedTests::test_negative - AssertionError: Value...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 128 passed in 0.37s\n",
+  "fix_commit_url": "https://github.com/more-itertools/more-itertools/commit/958990e22c4ab6daf434d89cf2b86d7a4a7a9e3c"
+}

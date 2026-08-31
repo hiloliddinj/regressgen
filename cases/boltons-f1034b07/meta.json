@@ -1,0 +1,20 @@
+{
+  "id": "boltons-f1034b07",
+  "repo": "boltons",
+  "upstream": "https://github.com/mahmoud/boltons.git",
+  "license": "BSD-3-Clause",
+  "fix_commit": "f1034b07ddf71f4d9285134a47a4ade16fe40789",
+  "buggy_commit": "435774ef8b10c1355bf77483a837945034011754",
+  "subject": "jsonutils: fix JSONLIterator nontermination at EOF and negative rel_seek",
+  "src_files": [
+    "boltons/jsonutils.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_jsonutils.py"
+  ],
+  "src_churn": 12,
+  "pkg_dir": "boltons",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "..F\n=================================== FAILURES ===================================\n______________ test_jsonl_iterator_mid_last_line_seek_terminates _______________\n\ntmp_path = PosixPath('/private/tmp/pytest-of-hiloliddin/pytest-4/test_jsonl_iterator_mid_last_l0')\n\n    def test_jsonl_iterator_mid_last_line_seek_terminates(tmp_path):\n        # a rel_seek landing mid-final-line of a file with no trailing\n        # newline used to loop forever in _align_to_newline\n        path = tmp_path / 'no_trailing_newline.jsonl'\n        path.write_text('{\"1\": 1}\\n{\"2\": 2}')\n        fo = _CappedReadFile(open(str(path)))\n>       jsonl_iter = JSONLIterator(fo, rel_seek=0.9)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_jsonutils.py:71: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nboltons/jsonutils.py:163: in __init__\n    self._init_rel_seek()\nboltons/jsonutils.py:203: in _init_rel_seek\n    self._align_to_newline()\nboltons/jsonutils.py:182: in _align_to_newline\n    cur = fo.read(bsize)\n          ^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <tests.test_jsonutils._CappedReadFile object at 0x106f02600>, size = 4096\n\n    def read(self, size=-1):\n        self._reads += 1\n        if self._reads > self._max_reads:\n>           raise RuntimeError('read() called more than %s times,'\n                               ' likely an infinite loop' % self._max_reads)\nE           RuntimeError: read() called more than 100 times, likely an infinite loop\n\ntests/test_jsonutils.py:54: RuntimeError\n=========================== short test summary info ============================\nFAILED tests/test_jsonutils.py::test_jsonl_iterator_mid_last_line_seek_terminates\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 2 passed in 0.03s\n",
+  "fix_commit_url": "https://github.com/mahmoud/boltons/commit/f1034b07ddf71f4d9285134a47a4ade16fe40789"
+}

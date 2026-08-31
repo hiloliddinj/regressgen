@@ -1,0 +1,45 @@
+[project]
+name = "regressgen"
+version = "0.1.0"
+description = "Turn a plain-English bug report into a regression test that provably reproduces the bug."
+requires-python = ">=3.12,<3.13"
+# The runtime needs exactly one thing. Everything else — the corpus, the
+# sandbox, the verifier — is standard library, which is why a clean clone
+# resolves in seconds and `validate` runs with no network at all.
+dependencies = [
+    "claude-agent-sdk>=0.2,<0.3",
+]
+
+[project.scripts]
+regressgen = "regressgen.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8.3.4,<9", "hypothesis>=6.100", "pretend>=1.0.9"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["regressgen"]
+
+[tool.pytest.ini_options]
+# Only our own tests. `cases/` contains vendored upstream suites that must never
+# be collected here — they are run inside isolated sandbox copies instead.
+testpaths = ["tests"]
+norecursedirs = ["cases", ".work", ".venv", "trajectories", "results"]
+
+[tool.ruff]
+line-length = 92
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "C4", "RUF", "SIM"]
+ignore = [
+    "E501",    # long lines are wrapped by hand where it helps readability
+    "RUF001",  # unicode punctuation in prose strings is deliberate
+    "RUF002",
+    "RUF003",
+    "C408",    # dict(...) reads better than a literal for the per-variant config table
+    "RUF005",  # explicit list concatenation is clearer than unpacking when building trajectories
+]

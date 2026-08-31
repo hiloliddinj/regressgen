@@ -1,0 +1,23 @@
+{
+  "id": "tabulate-6c48142c",
+  "repo": "tabulate",
+  "upstream": "https://github.com/astanin/python-tabulate.git",
+  "license": "MIT",
+  "fix_commit": "6c48142c0b57ea6108cb1d304b69b90b18748e45",
+  "buggy_commit": "bf58e37e6b35e3cc9a0bd740f752abfd32b6e6f8",
+  "subject": "fix #190 - preserve line breaks when using maxcolwidths",
+  "src_files": [
+    "tabulate/__init__.py"
+  ],
+  "oracle_test_files": [
+    "test/test_regression.py"
+  ],
+  "src_churn": 6,
+  "pkg_dir": "tabulate",
+  "tests_dir": "test",
+  "oracle_failure_excerpt": "................s..ss.s.........F\n=================================== FAILURES ===================================\n_________________ test_preserve_line_breaks_with_maxcolwidths __________________\n\n    def test_preserve_line_breaks_with_maxcolwidths():\n        \"Regression: preserve line breaks when using maxcolwidths (github issue #190)\"\n        table = [[\"123456789 bbb\\nccc\"]]\n        expected = \"\\n\".join(\n            [\n                \"+-----------+\",\n                \"| 123456789 |\",\n                \"| bbb       |\",\n                \"| ccc       |\",\n                \"+-----------+\",\n            ]\n        )\n        result = tabulate(table, tablefmt=\"grid\", maxcolwidths=10)\n>       assert_equal(result, expected)\n\ntest/test_regression.py:488: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nexpected = '+-----------+\\n| 123456789 |\\n| bbb ccc   |\\n+-----------+'\nresult = '+-----------+\\n| 123456789 |\\n| bbb       |\\n| ccc       |\\n+-----------+'\n\n    def assert_equal(expected, result):\n        print(\"Expected:\\n%s\\n\" % expected)\n        print(\"Got:\\n%s\\n\" % result)\n>       assert expected == result\n               ^^^^^^^^^^^^^^^^^^\nE       AssertionError\n\ntest/common.py:8: AssertionError\n----------------------------- Captured stdout call -----------------------------\nExpected:\n+-----------+\n| 123456789 |\n| bbb ccc   |\n+-----------+\n\nGot:\n+-----------+\n| 123456789 |\n| bbb       |\n| ccc       |\n+-----------+\n\n=========================== short test summary info ============================\nFAILED test/test_regression.py::test_preserve_line_breaks_with_maxcolwidths\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 28 passed, 4 skipped in 0.12s\n",
+  "upstream_refs": [
+    "https://github.com/astanin/python-tabulate/issues/190"
+  ],
+  "fix_commit_url": "https://github.com/astanin/python-tabulate/commit/6c48142c0b57ea6108cb1d304b69b90b18748e45"
+}

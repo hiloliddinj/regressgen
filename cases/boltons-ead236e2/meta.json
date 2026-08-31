@@ -1,0 +1,20 @@
+{
+  "id": "boltons-ead236e2",
+  "repo": "boltons",
+  "upstream": "https://github.com/mahmoud/boltons.git",
+  "license": "BSD-3-Clause",
+  "fix_commit": "ead236e278ca0466bf468de746b5960fb12d7e5b",
+  "buggy_commit": "57cb026b7f47cd2765a0d5acdc83849ed5f1f6a3",
+  "subject": "fix: backoff_iter with factor=1.0 and no count raised ZeroDivisionError",
+  "src_files": [
+    "boltons/iterutils.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_iterutils.py"
+  ],
+  "src_churn": 10,
+  "pkg_dir": "boltons",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "              try:\n                  res = network_call()\n                  break\n              except Exception as e:\n                  log(e)\n                  time.sleep(timeout)\n    \n        An enhancement for large-scale systems would be to add variation,\n        or *jitter*, to timeout values. This is done to avoid a thundering\n        herd on the receiving end of the network call.\n    \n        Finally, for *count*, the special value ``'repeat'`` can be passed to\n        continue yielding indefinitely.\n    \n        Args:\n    \n            start (float): Positive number for baseline.\n            stop (float): Positive number for maximum.\n            count (int): Number of steps before stopping\n                iteration. Defaults to the number of steps between *start* and\n                *stop*. Pass the string, `'repeat'`, to continue iteration\n                indefinitely.\n            factor (float): Rate of exponential increase. Defaults to `2.0`,\n                e.g., `[1, 2, 4, 8, 16]`.\n            jitter (float): A factor between `-1.0` and `1.0`, used to\n                uniformly randomize and thus spread out timeouts in a distributed\n                system, avoiding rhythm effects. Positive values use the base\n                backoff curve as a maximum, negative values use the curve as a\n                minimum. Set to 1.0 or `True` for a jitter approximating\n                Ethernet's time-tested backoff solution. Defaults to `False`.\n    \n        \"\"\"\n        start = float(start)\n        stop = float(stop)\n        factor = float(factor)\n        if start < 0.0:\n            raise ValueError('expected start >= 0, not %r' % start)\n        if factor < 1.0:\n            raise ValueError('expected factor >= 1.0, not %r' % factor)\n        if stop == 0.0:\n            raise ValueError('expected stop >= 0')\n        if stop < start:\n            raise ValueError('expected stop >= start, not %r' % stop)\n        if count is None:\n            denom = start if start else 1\n>           count = 1 + math.ceil(math.log(stop/denom, factor))\n                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE           ZeroDivisionError: float division by zero\n\nboltons/iterutils.py:651: ZeroDivisionError\n=========================== short test summary info ============================\nFAILED tests/test_iterutils.py::test_backoff_constant_factor - ZeroDivisionEr...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 32 passed in 0.15s\n",
+  "fix_commit_url": "https://github.com/mahmoud/boltons/commit/ead236e278ca0466bf468de746b5960fb12d7e5b"
+}

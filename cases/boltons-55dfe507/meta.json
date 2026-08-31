@@ -1,0 +1,20 @@
+{
+  "id": "boltons-55dfe507",
+  "repo": "boltons",
+  "upstream": "https://github.com/mahmoud/boltons.git",
+  "license": "BSD-3-Clause",
+  "fix_commit": "55dfe5077bcb5fa76611b5f2a557ea6c442ad87c",
+  "buggy_commit": "ebc7a8f776debfa33f0b380b57a444bca75a251b",
+  "subject": "fix(fileutils): accept os.PathLike in AtomicSaver",
+  "src_files": [
+    "boltons/fileutils.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_fileutils.py"
+  ],
+  "src_churn": 5,
+  "pkg_dir": "boltons",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": ".F\n=================================== FAILURES ===================================\n__________________________ test_atomicsaver_pathlike ___________________________\n\ntmp_path = PosixPath('/private/tmp/pytest-of-hiloliddin/pytest-81/test_atomicsaver_pathlike0')\n\n    def test_atomicsaver_pathlike(tmp_path):\n        dest = tmp_path / 'output.bin'\n>       with fileutils.AtomicSaver(dest) as f:\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_fileutils.py:34: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <boltons.fileutils.AtomicSaver object at 0x10788f2f0>\ndest_path = PosixPath('/private/tmp/pytest-of-hiloliddin/pytest-81/test_atomicsaver_pathlike0/output.bin')\nkwargs = {}\n\n    def __init__(self, dest_path, **kwargs):\n        self.dest_path = dest_path\n        self.overwrite = kwargs.pop('overwrite', True)\n        self.file_perms = kwargs.pop('file_perms', None)\n        self.overwrite_part = kwargs.pop('overwrite_part', False)\n        self.part_filename = kwargs.pop('part_file', None)\n        self.rm_part_on_exc = kwargs.pop('rm_part_on_exc', True)\n        self.text_mode = kwargs.pop('text_mode', False)\n        self.buffering = kwargs.pop('buffering', -1)\n        if kwargs:\n            raise TypeError(f'unexpected kwargs: {kwargs.keys()!r}')\n    \n        self.dest_path = os.path.abspath(self.dest_path)\n        self.dest_dir = os.path.dirname(self.dest_path)\n        if not self.part_filename:\n>           self.part_path = dest_path + '.part'\n                             ^^^^^^^^^^^^^^^^^^^\nE           TypeError: unsupported operand type(s) for +: 'PosixPath' and 'str'\n\nboltons/fileutils.py:403: TypeError\n=========================== short test summary info ============================\nFAILED tests/test_fileutils.py::test_atomicsaver_pathlike - TypeError: unsupp...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 1 passed in 0.10s\n",
+  "fix_commit_url": "https://github.com/mahmoud/boltons/commit/55dfe5077bcb5fa76611b5f2a557ea6c442ad87c"
+}

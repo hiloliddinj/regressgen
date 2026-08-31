@@ -1,0 +1,20 @@
+{
+  "id": "more-itertools-0e6acdf9",
+  "repo": "more-itertools",
+  "upstream": "https://github.com/more-itertools/more-itertools.git",
+  "license": "MIT",
+  "fix_commit": "0e6acdf9b60765ecf9634d6f5c132ac1bebc616b",
+  "buggy_commit": "516f0a80fb7c2c8562dbb5e318fc2a3d44f4171f",
+  "subject": "Raise a clear ValueError for negative n in chunked()",
+  "src_files": [
+    "more_itertools/more.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_more.py"
+  ],
+  "src_churn": 3,
+  "pkg_dir": "more_itertools",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": ".F\n=================================== FAILURES ===================================\n__________________________ ChunkedTests.test_negative __________________________\nValueError: Stop argument for islice() must be None or an integer: 0 <= x <= sys.maxsize.\n\nDuring handling of the above exception, another exception occurred:\n\nself = <tests.test_more.ChunkedTests testMethod=test_negative>\n\n    def test_negative(self):\n        \"\"\"Test that a negative ``n`` raises a clear ``ValueError``, matching\n        the behavior of :func:`sliced`.\"\"\"\n>       self.assertRaisesRegex(\n            ValueError,\n            \"n must be at least 0\",\n            lambda: list(mi.chunked('ABCDE', -1)),\n        )\nE       AssertionError: \"n must be at least 0\" does not match \"Stop argument for islice() must be None or an integer: 0 <= x <= sys.maxsize.\"\n\ntests/test_more.py:76: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_more.py::ChunkedTests::test_negative - AssertionError: \"n m...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 1 passed in 0.21s\n",
+  "fix_commit_url": "https://github.com/more-itertools/more-itertools/commit/0e6acdf9b60765ecf9634d6f5c132ac1bebc616b"
+}

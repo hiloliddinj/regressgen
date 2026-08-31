@@ -1,0 +1,20 @@
+{
+  "id": "boltons-1e61524a",
+  "repo": "boltons",
+  "upstream": "https://github.com/mahmoud/boltons.git",
+  "license": "BSD-3-Clause",
+  "fix_commit": "1e61524a798ea73632029a013a7686036d5c126f",
+  "buggy_commit": "55dfe5077bcb5fa76611b5f2a557ea6c442ad87c",
+  "subject": "fix(strutils): stop singularize() mangling words ending in 'ss'",
+  "src_files": [
+    "boltons/strutils.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_strutils.py"
+  ],
+  "src_churn": 7,
+  "pkg_dir": "boltons",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": ".................F\n=================================== FAILURES ===================================\n__________________________ test_singularize_double_s ___________________________\n\n    def test_singularize_double_s():\n        singularize = strutils.singularize\n        # Words ending in a double 's' are already singular (their plurals end\n        # in 'sses'), so singularize must not strip the trailing 's' and produce\n        # 'glas'/'bos'/'kis'. Regression for the branch that blindly did word[:-1].\n>       assert singularize('glass') == 'glass'\nE       AssertionError: assert 'glas' == 'glass'\nE         \nE         - glass\nE         ?     -\nE         + glas\n\ntests/test_strutils.py:284: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_strutils.py::test_singularize_double_s - AssertionError: as...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 17 passed in 0.11s\n",
+  "fix_commit_url": "https://github.com/mahmoud/boltons/commit/1e61524a798ea73632029a013a7686036d5c126f"
+}

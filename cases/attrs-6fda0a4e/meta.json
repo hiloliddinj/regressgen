@@ -1,0 +1,25 @@
+{
+  "id": "attrs-6fda0a4e",
+  "repo": "attrs",
+  "upstream": "https://github.com/python-attrs/attrs.git",
+  "license": "MIT",
+  "fix_commit": "6fda0a4e086b56d7058855e4c15112c8f58de74c",
+  "buggy_commit": "53e632c5218b729da6ac37a35b4b68379dc18999",
+  "subject": "Make Converter a kind of adapter, fix converters.pipe (#1328)",
+  "src_files": [
+    "src/attr/_make.py",
+    "src/attr/setters.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_converters.py",
+    "tests/test_setattr.py"
+  ],
+  "src_churn": 43,
+  "pkg_dir": "src/attr",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "F\n=================================== FAILURES ===================================\n_____________________ TestConverter.test_pickle[True-True] _____________________\n\nself = <tests.test_converters.TestConverter object at 0x10b64d5b0>\ntakes_self = True, takes_field = True\n\n    @pytest.mark.parametrize(\"takes_self\", [True, False])\n    @pytest.mark.parametrize(\"takes_field\", [True, False])\n    def test_pickle(self, takes_self, takes_field):\n        \"\"\"\n        Wrapped converters can be pickled.\n        \"\"\"\n        c = Converter(int, takes_self=takes_self, takes_field=takes_field)\n    \n        new_c = pickle.loads(pickle.dumps(c))\n    \n        assert c == new_c\n        assert takes_self == new_c.takes_self\n        assert takes_field == new_c.takes_field\n>       assert c.__call__.__name__ == new_c.__call__.__name__\n               ^^^^^^^^^^\nE       AttributeError: 'Converter' object has no attribute '__call__'. Did you mean: '__class__'?\n\ntests/test_converters.py:31: AttributeError\n=========================== short test summary info ============================\nFAILED tests/test_converters.py::TestConverter::test_pickle[True-True] - Attr...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed in 0.05s\n",
+  "upstream_refs": [
+    "https://github.com/python-attrs/attrs/issues/1328"
+  ],
+  "fix_commit_url": "https://github.com/python-attrs/attrs/commit/6fda0a4e086b56d7058855e4c15112c8f58de74c"
+}

@@ -1,0 +1,23 @@
+{
+  "id": "attrs-c9150d27",
+  "repo": "attrs",
+  "upstream": "https://github.com/python-attrs/attrs.git",
+  "license": "MIT",
+  "fix_commit": "c9150d278ced32056d73c239ff64034e5056bcb6",
+  "buggy_commit": "882805e173ba970f381ed8f162b650eb7fbc1160",
+  "subject": "Fix backward compatibility with pickles before v22.2.0 (#1085)",
+  "src_files": [
+    "src/attr/_make.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_slots.py"
+  ],
+  "src_churn": 12,
+  "pkg_dir": "src/attr",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "............s.s...................F\n=================================== FAILURES ===================================\n_______________ test_slots_unpickle_is_backward_compatible[True] _______________\n\nfrozen = True\n\n    def test_slots_unpickle_is_backward_compatible(frozen):\n        \"\"\"\n        Ensure object pickled before v22.2.0 can still be unpickled.\n        \"\"\"\n        a = A(1, 2, 3)\n    \n        a_pickled = (\n            b\"\\x80\\x04\\x95&\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x8c\\x10\"\n            + a.__module__.encode()\n            + b\"\\x94\\x8c\\x01A\\x94\\x93\\x94)\\x81\\x94K\\x01K\\x02K\\x03\\x87\\x94b.\"\n        )\n    \n        a_unpickled = pickle.loads(a_pickled)\n    \n>       assert a_unpickled == a\n               ^^^^^^^^^^^^^^^^\n\ntests/test_slots.py:820: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <[AttributeError(\"'A' object has no attribute 'x'\") raised in repr()] A object at 0x1080b6a80>\nother = A(x=1, b=2, c=3)\n\n    def __eq__(self, other):\n        if other.__class__ is not self.__class__:\n            return NotImplemented\n        return  (\n>           self.x,\n            ^^^^^^\n            self.b,\n            self.c,\n        ) == (\n            other.x,\n            other.b,\n            other.c,\n        )\nE       AttributeError: 'A' object has no attribute 'x'\n\n<attrs generated eq tests.test_slots.A>:5: AttributeError\n=========================== short test summary info ============================\nFAILED tests/test_slots.py::test_slots_unpickle_is_backward_compatible[True]\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 32 passed, 2 skipped in 0.09s\n",
+  "upstream_refs": [
+    "https://github.com/python-attrs/attrs/issues/1085"
+  ],
+  "fix_commit_url": "https://github.com/python-attrs/attrs/commit/c9150d278ced32056d73c239ff64034e5056bcb6"
+}

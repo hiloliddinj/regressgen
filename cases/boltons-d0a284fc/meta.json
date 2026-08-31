@@ -1,0 +1,20 @@
+{
+  "id": "boltons-d0a284fc",
+  "repo": "boltons",
+  "upstream": "https://github.com/mahmoud/boltons.git",
+  "license": "BSD-3-Clause",
+  "fix_commit": "d0a284fc7ef1aebceb54798600d73be4eeb76ed8",
+  "buggy_commit": "609cabe932a1ea1423b24568644945abb1b8bb84",
+  "subject": "fix IndexedSet out-of-range negative indexing wrapping around (x[-n-k], pop(-n-k))",
+  "src_files": [
+    "boltons/setutils.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_setutils.py"
+  ],
+  "src_churn": 10,
+  "pkg_dir": "boltons",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": ".......F\n=================================== FAILURES ===================================\n________________________ test_iset_scalar_index_bounds _________________________\n\n    def test_iset_scalar_index_bounds():\n        # Out-of-range negatives used to wrap silently: __getitem__ normalized\n        # the index and _get_real_index normalized it AGAIN, so x[-10] on a\n        # 9-element set returned x[-1], and pop(-15) removed a middle element.\n        x = IndexedSet(range(10))\n        x.pop(2)  # len 9, one dead slot\n        assert x[-1] == 9\n        assert x[-9] == 0\n        with raises(IndexError):\n            x[9]\n>       with raises(IndexError):\n             ^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE <class 'IndexError'>\n\ntests/test_setutils.py:252: Failed\n=========================== short test summary info ============================\nFAILED tests/test_setutils.py::test_iset_scalar_index_bounds - Failed: DID NO...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 7 passed in 0.13s\n",
+  "fix_commit_url": "https://github.com/mahmoud/boltons/commit/d0a284fc7ef1aebceb54798600d73be4eeb76ed8"
+}

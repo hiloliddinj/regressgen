@@ -1,0 +1,20 @@
+{
+  "id": "attrs-ce89f5d1",
+  "repo": "attrs",
+  "upstream": "https://github.com/python-attrs/attrs.git",
+  "license": "MIT",
+  "fix_commit": "ce89f5d11feb0805da9ed10bb165238cc959f1bb",
+  "buggy_commit": "eccd966d80aff5196efc959316961cfa780439f9",
+  "subject": "Fix message passing in frozen errors",
+  "src_files": [
+    "src/attr/exceptions.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_functional.py"
+  ],
+  "src_churn": 8,
+  "pkg_dir": "src/attr",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "============\n_________________ TestFunctional.test_frozen_instance[Frozen] __________________\n\nself = <tests.test_functional.TestFunctional object at 0x10bb563c0>\nfrozen_class = <class 'tests.test_functional.Frozen'>\n\n    @pytest.mark.parametrize(\n        \"frozen_class\",\n        [\n            Frozen,  # has slots=True\n            attr.make_class(\"FrozenToo\", [\"x\"], slots=False, frozen=True),\n        ],\n    )\n    def test_frozen_instance(self, frozen_class):\n        \"\"\"\n        Frozen instances can't be modified (easily).\n        \"\"\"\n        frozen = frozen_class(1)\n    \n        with pytest.raises(\n            FrozenInstanceError, match=\"can't set attribute\"\n        ) as e:\n>           frozen.x = 2\n            ^^^^^^^^\n\ntests/test_functional.py:270: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = Frozen(x=1), name = 'x', value = 2\n\n    def _frozen_setattrs(self, name, value):\n        \"\"\"\n        Attached to frozen classes as __setattr__.\n        \"\"\"\n        if isinstance(self, BaseException) and name in (\n            \"__cause__\",\n            \"__context__\",\n            \"__traceback__\",\n            \"__suppress_context__\",\n            \"__notes__\",\n        ):\n            BaseException.__setattr__(self, name, value)\n            return\n    \n>       raise FrozenInstanceError\nE       attr.exceptions.FrozenInstanceError\n\nsrc/attr/_make.py:573: FrozenInstanceError\n\nDuring handling of the above exception, another exception occurred:\n\nself = <tests.test_functional.TestFunctional object at 0x10bb563c0>\nfrozen_class = <class 'tests.test_functional.Frozen'>\n\n    @pytest.mark.parametrize(\n        \"frozen_class\",\n        [\n            Frozen,  # has slots=True\n            attr.make_class(\"FrozenToo\", [\"x\"], slots=False, frozen=True),\n        ],\n    )\n    def test_frozen_instance(self, frozen_class):\n        \"\"\"\n        Frozen instances can't be modified (easily).\n        \"\"\"\n        frozen = frozen_class(1)\n    \n>       with pytest.raises(\n            FrozenInstanceError, match=\"can't set attribute\"\n        ) as e:\nE       AssertionError: Regex pattern did not match.\nE        Regex: \"can't set attribute\"\nE        Input: ''\n\ntests/test_functional.py:267: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_functional.py::TestFunctional::test_frozen_instance[Frozen]\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 12 passed in 0.13s\n",
+  "fix_commit_url": "https://github.com/python-attrs/attrs/commit/ce89f5d11feb0805da9ed10bb165238cc959f1bb"
+}

@@ -1,0 +1,23 @@
+{
+  "id": "attrs-09161fc9",
+  "repo": "attrs",
+  "upstream": "https://github.com/python-attrs/attrs.git",
+  "license": "MIT",
+  "fix_commit": "09161fc9181bf94aa3bbc5509c663d736a9553dc",
+  "buggy_commit": "689a0e64012d1e576ebd99e786a254bc537582c6",
+  "subject": "Fix crash when __pre_init__, kw_only, and defaults come together (#1319)",
+  "src_files": [
+    "src/attr/_make.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_make.py"
+  ],
+  "src_churn": 12,
+  "pkg_dir": "src/attr",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "\n        val = None\n    \n>       @attr.define\n         ^^^^^^^^^^^\n\ntests/test_make.py:704: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/attr/_next_gen.py:402: in define\n    return wrap(maybe_cls)\n           ^^^^^^^^^^^^^^^\nsrc/attr/_next_gen.py:393: in wrap\n    return do_it(cls, True)\n           ^^^^^^^^^^^^^^^^\nsrc/attr/_next_gen.py:339: in do_it\n    return attrs(\nsrc/attr/_make.py:1403: in attrs\n    return wrap(maybe_cls)\n           ^^^^^^^^^^^^^^^\nsrc/attr/_make.py:1382: in wrap\n    builder.add_init()\nsrc/attr/_make.py:972: in add_init\n    _make_init(\nsrc/attr/_make.py:1875: in _make_init\n    init = _make_method(\nsrc/attr/_make.py:239: in _make_method\n    _compile_and_eval(script, globs, locs, filename)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nscript = \"def __init__(self, *, kw_and_default=attr_dict['kw_and_default'].default):\\n    self.__attrs_pre_init__(kw_and_defaul..._and_default'].default=kw_and_default=attr_dict['kw_and_default'].default)\\n    self.kw_and_default = kw_and_default\\n\"\nglobs = {'@py_builtins': <module 'builtins' (built-in)>, '@pytest_ar': <module '_pytest.assertion.rewrite' from '/Users/hiloli...est/assertion/rewrite.py'>, 'Attribute': <class 'attr._make.Attribute'>, 'BareC': <class 'tests.test_make.BareC'>, ...}\nlocs = {}\nfilename = '<attrs generated init tests.test_make.TestAttributes.test_pre_init_kw_only_work_with_defaults.<locals>.KWOnlyAndDefault>'\n\n    def _compile_and_eval(script, globs, locs=None, filename=\"\"):\n        \"\"\"\n        Evaluate the script with the given global (globs) and local (locs)\n        variables.\n        \"\"\"\n>       bytecode = compile(script, filename, \"exec\")\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE         File \"<attrs generated init tests.test_make.TestAttributes.test_pre_init_kw_only_work_with_defaults.<locals>.KWOnlyAndDefault>\", line 2\nE           self.__attrs_pre_init__(kw_and_default=attr_dict['kw_and_default'].default=kw_and_default=attr_dict['kw_and_default'].default)\nE                                                                                     ^\nE       SyntaxError: invalid syntax\n\nsrc/attr/_make.py:211: SyntaxError\n=========================== short test summary info ============================\nFAILED tests/test_make.py::TestAttributes::test_pre_init_kw_only_work_with_defaults[True]\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 47 passed in 0.37s\n",
+  "upstream_refs": [
+    "https://github.com/python-attrs/attrs/issues/1319"
+  ],
+  "fix_commit_url": "https://github.com/python-attrs/attrs/commit/09161fc9181bf94aa3bbc5509c663d736a9553dc"
+}

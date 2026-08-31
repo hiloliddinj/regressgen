@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Cloned upstream history + scratch trees used only while mining.
+# Rebuildable with tools/mine_cases.py; the mined cases themselves are committed.
+.work/
+
+# results/ and trajectories/ ARE committed on purpose — they are the evidence
+# every claim in the README points at.

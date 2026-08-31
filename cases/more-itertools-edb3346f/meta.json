@@ -1,0 +1,20 @@
+{
+  "id": "more-itertools-edb3346f",
+  "repo": "more-itertools",
+  "upstream": "https://github.com/more-itertools/more-itertools.git",
+  "license": "MIT",
+  "fix_commit": "edb3346f835ca917efbfda5e2d6664ab952da369",
+  "buggy_commit": "247e15b3a489d5805375c95dfa79486c9bd0eb1b",
+  "subject": "Fix empty ranges in numeric_range.__reversed__",
+  "src_files": [
+    "more_itertools/more.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_more.py"
+  ],
+  "src_churn": 10,
+  "pkg_dir": "more_itertools",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "........................................................................ [ 12%]\n........................................................................ [ 25%]\n........................................................................ [ 37%]\n................F\n=================================== FAILURES ===================================\n____________________ NumericRangeTests.test_empty_reversed _____________________\n\nself = <tests.test_more.NumericRangeTests testMethod=test_empty_reversed>\n\n    def test_empty_reversed(self):\n>       self.assertEqual(list(reversed(mi.numeric_range(0))), [])\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_more.py:3141: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nmore_itertools/more.py:2407: in __reversed__\n    self._get_by_index(-1), self._start - self._step, -self._step\n    ^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = numeric_range(0, 0), i = -1\n\n    def _get_by_index(self, i):\n        if i < 0:\n            i += self._len\n        if i < 0 or i >= self._len:\n>           raise IndexError(\"numeric range object index out of range\")\nE           IndexError: numeric range object index out of range\n\nmore_itertools/more.py:2432: IndexError\n=========================== short test summary info ============================\nFAILED tests/test_more.py::NumericRangeTests::test_empty_reversed - IndexErro...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 232 passed in 0.49s\n",
+  "fix_commit_url": "https://github.com/more-itertools/more-itertools/commit/edb3346f835ca917efbfda5e2d6664ab952da369"
+}

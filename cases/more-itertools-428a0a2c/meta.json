@@ -1,0 +1,23 @@
+{
+  "id": "more-itertools-428a0a2c",
+  "repo": "more-itertools",
+  "upstream": "https://github.com/more-itertools/more-itertools.git",
+  "license": "MIT",
+  "fix_commit": "428a0a2c8d9efa1bf57df6d92563c610eaf817dc",
+  "buggy_commit": "04d266400d31920c65f26e9e57fa17bef9d45679",
+  "subject": "Issue 1098: Add synchronized decorator",
+  "src_files": [
+    "more_itertools/more.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_more.py"
+  ],
+  "src_churn": 30,
+  "pkg_dir": "more_itertools",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "........................................................................ [ 12%]\n........................................................................ [ 25%]\n........................................................................ [ 38%]\n........................................................................ [ 51%]\n........................................................................ [ 64%]\n........................................................................ [ 77%]\n........................................................................ [ 90%]\n.....................................................F\n=================================== FAILURES ===================================\n____________________ TestSynchronized.test_concurrent_calls ____________________\n\nself = <tests.test_more.TestSynchronized testMethod=test_concurrent_calls>\n\n    def test_concurrent_calls(self):\n        unique = 10  # Number of distinct counters\n        repetitions = 5  # Number of times each counter is used\n        limit = 100  # Calls per counter per repetition\n    \n>       @mi.synchronized\n         ^^^^^^^^^^^^^^^\nE       AttributeError: module 'more_itertools' has no attribute 'synchronized'\n\ntests/test_more.py:6433: AttributeError\n=========================== short test summary info ============================\nFAILED tests/test_more.py::TestSynchronized::test_concurrent_calls - Attribut...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 557 passed in 1.54s\n",
+  "upstream_refs": [
+    "https://github.com/more-itertools/more-itertools/issues/1098"
+  ],
+  "fix_commit_url": "https://github.com/more-itertools/more-itertools/commit/428a0a2c8d9efa1bf57df6d92563c610eaf817dc"
+}

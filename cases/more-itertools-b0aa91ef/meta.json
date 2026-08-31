@@ -1,0 +1,20 @@
+{
+  "id": "more-itertools-b0aa91ef",
+  "repo": "more-itertools",
+  "upstream": "https://github.com/more-itertools/more-itertools.git",
+  "license": "MIT",
+  "fix_commit": "b0aa91efbb452eeb8ffa0447047519c6e84d5292",
+  "buggy_commit": "073d23421b60e05a99872e7b174902f4aa151f31",
+  "subject": "Fix random_product() as well",
+  "src_files": [
+    "more_itertools/recipes.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_recipes.py"
+  ],
+  "src_churn": 2,
+  "pkg_dir": "more_itertools",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": ".....................................................................F\n=================================== FAILURES ===================================\n___________________ RandomProductTests.test_list_with_repeat ___________________\n\nself = <tests.test_recipes.RandomProductTests testMethod=test_list_with_repeat>\n\n    def test_list_with_repeat(self):\n        \"\"\"ensure multiple items are chosen, and that they appear to be chosen\n        from one list then the next, in proper order.\n    \n        \"\"\"\n        nums = [1, 2, 3]\n        lets = ['a', 'b', 'c']\n        r = list(mi.random_product(nums, lets, repeat=100))\n        self.assertEqual(2 * 100, len(r))\n        n, m = set(r[::2]), set(r[1::2])\n        self.assertEqual(n, set(nums))\n        self.assertEqual(m, set(lets))\n        self.assertEqual(len(n), len(nums))\n        self.assertEqual(len(m), len(lets))\n    \n>       r = list(mi.random_product(iter(nums), iter(lets), repeat=100))\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_recipes.py:571: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nmore_itertools/recipes.py:584: in random_product\n    return tuple(map(choice, pools))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <random.Random object at 0x878515420>, seq = ()\n\n    def choice(self, seq):\n        \"\"\"Choose a random element from a non-empty sequence.\"\"\"\n    \n        # As an accommodation for NumPy, we don't use \"if not seq\"\n        # because bool(numpy.array()) raises a ValueError.\n        if not len(seq):\n>           raise IndexError('Cannot choose from an empty sequence')\nE           IndexError: Cannot choose from an empty sequence\n\n../../../../../.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/random.py:347: IndexError\n=========================== short test summary info ============================\nFAILED tests/test_recipes.py::RandomProductTests::test_list_with_repeat - Ind...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 69 passed in 0.16s\n",
+  "fix_commit_url": "https://github.com/more-itertools/more-itertools/commit/b0aa91efbb452eeb8ffa0447047519c6e84d5292"
+}

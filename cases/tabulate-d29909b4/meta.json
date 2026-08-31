@@ -1,0 +1,20 @@
+{
+  "id": "tabulate-d29909b4",
+  "repo": "tabulate",
+  "upstream": "https://github.com/astanin/python-tabulate.git",
+  "license": "MIT",
+  "fix_commit": "d29909b4fb17e2bbf62dde8bc730e9f29240155f",
+  "buggy_commit": "537d7b03932263062d37a7e747f19a385709b9f7",
+  "subject": "Fix handling \"True\"/\"False\" bool str and None",
+  "src_files": [
+    "tabulate/__init__.py"
+  ],
+  "oracle_test_files": [
+    "test/test_textwrapper.py"
+  ],
+  "src_churn": 8,
+  "pkg_dir": "tabulate",
+  "tests_dir": "test",
+  "oracle_failure_excerpt": "ashing\"\"\"\n        data = [\n            [\"First Entry\", \"True\"],\n            [\"Second Entry\", None],\n        ]\n        headers = [\"Title\", \"When\"]\n>       result = tabulate(data, headers=headers, tablefmt=\"grid\", maxcolwidths=[7, 5])\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntest/test_textwrapper.py:232: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \ntabulate/__init__.py:2249: in tabulate\n    list_of_lists = _wrap_text_to_colwidths(\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nlist_of_lists = [['First Entry', 'True'], ['Second Entry', None]]\ncolwidths = [7, 5], numparses = [True, True]\n\n    def _wrap_text_to_colwidths(list_of_lists, colwidths, numparses=True):\n        if len(list_of_lists):\n            num_cols = len(list_of_lists[0])\n        else:\n            num_cols = 0\n        numparses = _expand_iterable(numparses, num_cols, True)\n    \n        result = []\n    \n        for row in list_of_lists:\n            new_row = []\n            for cell, width, numparse in zip(row, colwidths, numparses):\n                if _isnumber(cell) and numparse:\n                    new_row.append(cell)\n                    continue\n    \n                if width is not None:\n                    wrapper = _CustomTextWrap(width=width)\n                    # Cast based on our internal type handling. Any future custom\n                    # formatting of types (such as datetimes) may need to be more\n                    # explicit than just `str` of the object. Also doesn't work for\n                    # custom floatfmt/intfmt, nor with any missing/blank cells.\n                    casted_cell = (\n                        str(cell) if _isnumber(cell) else _type(cell, numparse)(cell)\n                    )\n                    wrapped = [\n                        \"\\n\".join(wrapper.wrap(line))\n>                       for line in casted_cell.splitlines()\n                                    ^^^^^^^^^^^^^^^^^^^^^^\n                        if line.strip() != \"\"\n                    ]\nE                   AttributeError: 'bool' object has no attribute 'splitlines'\n\ntabulate/__init__.py:1653: AttributeError\n=========================== short test summary info ============================\nFAILED test/test_textwrapper.py::test_wrap_optional_bool_strs - AttributeErro...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 10 passed, 3 skipped in 0.06s\n",
+  "fix_commit_url": "https://github.com/astanin/python-tabulate/commit/d29909b4fb17e2bbf62dde8bc730e9f29240155f"
+}

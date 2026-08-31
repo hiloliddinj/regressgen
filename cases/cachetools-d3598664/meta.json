@@ -1,0 +1,23 @@
+{
+  "id": "cachetools-d3598664",
+  "repo": "cachetools",
+  "upstream": "https://github.com/tkem/cachetools.git",
+  "license": "MIT",
+  "fix_commit": "d3598664ca921b11a35e42087b46a4686fa10f37",
+  "buggy_commit": "8f0d74a145f90e2672371b61aa8f82614adeefd7",
+  "subject": "Fix #256: Deprecate @mru_cache decorator.",
+  "src_files": [
+    "src/cachetools/func.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_func.py"
+  ],
+  "src_churn": 4,
+  "pkg_dir": "src/cachetools",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": ".....................F\n=================================== FAILURES ===================================\n_______________________ MRUDecoratorTest.test_decorator ________________________\n\nself = <tests.test_func.MRUDecoratorTest testMethod=test_decorator>\n\n    def test_decorator(self):\n>       cached = self.decorator(maxsize=2)(lambda n: n)\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_func.py:11: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \ntests/test_func.py:121: in decorator\n    self.assertEqual(len(w), 1)\nE   AssertionError: 0 != 1\n=========================== short test summary info ============================\nFAILED tests/test_func.py::MRUDecoratorTest::test_decorator - AssertionError:...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 21 passed in 0.09s\n",
+  "upstream_refs": [
+    "https://github.com/tkem/cachetools/issues/256"
+  ],
+  "fix_commit_url": "https://github.com/tkem/cachetools/commit/d3598664ca921b11a35e42087b46a4686fa10f37"
+}

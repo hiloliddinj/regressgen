@@ -1,0 +1,23 @@
+{
+  "id": "attrs-af9c5109",
+  "repo": "attrs",
+  "upstream": "https://github.com/python-attrs/attrs.git",
+  "license": "MIT",
+  "fix_commit": "af9c510912ce604a94896cc35c27368d5baf6ae6",
+  "buggy_commit": "ab7f8b2f4c0f747d5b1575247ce35e5adaad182e",
+  "subject": "Fix validators.disabled() to save/restore state on nesting (#1513)",
+  "src_files": [
+    "src/attr/validators.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_validators.py"
+  ],
+  "src_churn": 4,
+  "pkg_dir": "src/attr",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": ".......F\n=================================== FAILURES ===================================\n________________ TestDisableValidators.test_disabled_ctx_nested ________________\n\nself = <tests.test_validators.TestDisableValidators object at 0x1077197f0>\n\n    def test_disabled_ctx_nested(self):\n        \"\"\"\n        Nested contextmanagers restore correct state.\n        \"\"\"\n        assert _config._run_validators is True\n    \n        with validator_module.disabled():\n            assert _config._run_validators is False\n    \n            with validator_module.disabled():\n                assert _config._run_validators is False\n    \n>           assert _config._run_validators is False\nE           assert True is False\nE            +  where True = _config._run_validators\n\ntests/test_validators.py:112: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_validators.py::TestDisableValidators::test_disabled_ctx_nested\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 7 passed in 0.08s\n",
+  "upstream_refs": [
+    "https://github.com/python-attrs/attrs/issues/1513"
+  ],
+  "fix_commit_url": "https://github.com/python-attrs/attrs/commit/af9c510912ce604a94896cc35c27368d5baf6ae6"
+}

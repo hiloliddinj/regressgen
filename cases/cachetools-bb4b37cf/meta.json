@@ -1,0 +1,25 @@
+{
+  "id": "cachetools-bb4b37cf",
+  "repo": "cachetools",
+  "upstream": "https://github.com/tkem/cachetools.git",
+  "license": "MIT",
+  "fix_commit": "bb4b37cfc76ba42707db59a90220bf724393d263",
+  "buggy_commit": "726b0111e06f655c332ea4765a89d4669719649b",
+  "subject": "Fix #292, fix #205, fix #103: TTLCache.expire() returns iterable of expired (key, value) pairs.",
+  "src_files": [
+    "src/cachetools/__init__.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_ttl.py"
+  ],
+  "src_churn": 12,
+  "pkg_dir": "src/cachetools",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "..............F\n=================================== FAILURES ===================================\n________________________ TTLCacheTest.test_ttl_datetime ________________________\n\nself = <tests.test_ttl.TTLCacheTest testMethod=test_ttl_datetime>\n\n    def test_ttl_datetime(self):\n        from datetime import datetime, timedelta\n    \n        cache = TTLCache(maxsize=1, ttl=timedelta(days=1), timer=datetime.now)\n    \n        cache[1] = 1\n        self.assertEqual(1, len(cache))\n        items = cache.expire(datetime.now())\n>       self.assertEqual([], list(items))\n                             ^^^^^^^^^^^\nE       TypeError: 'NoneType' object is not iterable\n\ntests/test_ttl.py:199: TypeError\n=========================== short test summary info ============================\nFAILED tests/test_ttl.py::TTLCacheTest::test_ttl_datetime - TypeError: 'NoneT...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 14 passed in 0.04s\n",
+  "upstream_refs": [
+    "https://github.com/tkem/cachetools/issues/292",
+    "https://github.com/tkem/cachetools/issues/205",
+    "https://github.com/tkem/cachetools/issues/103"
+  ],
+  "fix_commit_url": "https://github.com/tkem/cachetools/commit/bb4b37cfc76ba42707db59a90220bf724393d263"
+}

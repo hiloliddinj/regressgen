@@ -1,0 +1,24 @@
+{
+  "id": "tabulate-87a9a4e0",
+  "repo": "tabulate",
+  "upstream": "https://github.com/astanin/python-tabulate.git",
+  "license": "MIT",
+  "fix_commit": "87a9a4e07a5efb39b81fdb6ac513b1d345bb21fb",
+  "buggy_commit": "e13a4d0dd292cade200e653eb9155a1ca0f1dbea",
+  "subject": "fix #365 - added a regression test and a fix based on pull request #393",
+  "src_files": [
+    "tabulate/__init__.py"
+  ],
+  "oracle_test_files": [
+    "test/test_regression.py"
+  ],
+  "src_churn": 2,
+  "pkg_dir": "tabulate",
+  "tests_dir": "test",
+  "oracle_failure_excerpt": "thor\", \"Description\"), \\\n              maxcolwidths=[None, None, 30], \\\n              tablefmt=\"grid\"  \\\n            ))\n        +------------+------------+-------------------------------+\n        |   Issue Id | Author     | Description                   |\n        +============+============+===============================+\n        |          1 | John Smith | This is a rather long         |\n        |            |            | description that might look   |\n        |            |            | better if it is wrapped a bit |\n        +------------+------------+-------------------------------+\n    \n        Header column width can be specified in a similar way using `maxheadercolwidth`\n    \n        \"\"\"\n    \n        if tabular_data is None:\n            tabular_data = []\n    \n        list_of_lists, headers, headers_pad = _normalize_tabular_data(\n            tabular_data, headers, showindex=showindex\n        )\n        list_of_lists, separating_lines = _remove_separating_lines(list_of_lists)\n    \n        if maxcolwidths is not None:\n            if type(maxcolwidths) is tuple:  # Check if tuple, convert to list if so\n                maxcolwidths = list(maxcolwidths)\n            if len(list_of_lists):\n                num_cols = len(list_of_lists[0])\n            else:\n                num_cols = 0\n            if isinstance(maxcolwidths, int):  # Expand scalar for all columns\n                maxcolwidths = _expand_iterable(maxcolwidths, num_cols, maxcolwidths)\n            else:  # Ignore col width for any 'trailing' columns\n                maxcolwidths = _expand_iterable(maxcolwidths, num_cols, None)\n    \n            numparses = _expand_numparse(disable_numparse, num_cols)\n            list_of_lists = _wrap_text_to_colwidths(\n                list_of_lists,\n                maxcolwidths,\n                numparses=numparses,\n                missingval=missingval,\n                break_long_words=break_long_words,\n                break_on_hyphens=break_on_hyphens,\n            )\n    \n        if maxheadercolwidths is not None:\n>           num_cols = len(list_of_lists[0])\n                           ^^^^^^^^^^^^^^^^\nE           IndexError: list index out of range\n\ntabulate/__init__.py:2291: IndexError\n=========================== short test summary info ============================\nFAILED test/test_regression.py::test_empty_table_with_maxheadercolwidths - In...\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 33 passed, 4 skipped in 0.06s\n",
+  "upstream_refs": [
+    "https://github.com/astanin/python-tabulate/issues/365",
+    "https://github.com/astanin/python-tabulate/issues/393"
+  ],
+  "fix_commit_url": "https://github.com/astanin/python-tabulate/commit/87a9a4e07a5efb39b81fdb6ac513b1d345bb21fb"
+}

@@ -1,0 +1,12 @@
+# Vendored upstream trees must be byte-identical on every clone.
+#
+# Git's line-ending normalisation would rewrite CRLF files on checkout —
+# several boltons, semver and tabulate files ship with CRLF, and one of them
+# is a test (tabulate's test_grapheme_clusters.py). Rewriting them would mean
+# a judge validates a tree that differs from the one these results came from.
+cases/** -text -diff
+
+# The corpus is evidence, not source to review in a diff.
+cases/** linguist-vendored
+results/**.json -diff linguist-generated
+trajectories/**.md -diff linguist-generated

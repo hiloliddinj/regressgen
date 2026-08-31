@@ -1,0 +1,20 @@
+{
+  "id": "tabulate-0655054b",
+  "repo": "tabulate",
+  "upstream": "https://github.com/astanin/python-tabulate.git",
+  "license": "MIT",
+  "fix_commit": "0655054b4115f59607bbbd37e60f0897dd267261",
+  "buggy_commit": "95ae5eb61ef969749e904c90ab429003238d6212",
+  "subject": "Fix support for separating lines",
+  "src_files": [
+    "tabulate/__init__.py"
+  ],
+  "oracle_test_files": [
+    "test/test_output.py"
+  ],
+  "src_churn": 9,
+  "pkg_dir": "tabulate",
+  "tests_dir": "test",
+  "oracle_failure_excerpt": ".........s...........F\n=================================== FAILURES ===================================\n________ test_simple_headerless_with_sep_line_with_padding_in_tablefmt _________\n\n    def test_simple_headerless_with_sep_line_with_padding_in_tablefmt():\n        \"Output: simple without headers with sep line with padding in tablefmt\"\n        expected = \"\\n\".join(\n            [\n                \"|------|----------|\",\n                \"| spam |  41.9999 |\",\n                \"|------|----------|\",\n                \"| eggs | 451      |\",\n            ]\n        )\n        result = tabulate(_test_table_with_sep_line, tablefmt=\"github\")\n>       assert_equal(expected, result)\n\ntest/test_output.py:349: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nexpected = '|------|----------|\\n| spam |  41.9999 |\\n|------|----------|\\n| eggs | 451      |'\nresult = '|------|----------|\\n| spam |  41.9999 |\\n| \\x01 |\\n| eggs | 451      |'\n\n    def assert_equal(expected, result):\n        print(\"Expected:\\n%s\\n\" % expected)\n        print(\"Got:\\n%s\\n\" % result)\n>       assert expected == result\n               ^^^^^^^^^^^^^^^^^^\nE       AssertionError\n\ntest/common.py:8: AssertionError\n----------------------------- Captured stdout call -----------------------------\nExpected:\n|------|----------|\n| spam |  41.9999 |\n|------|----------|\n| eggs | 451      |\n\nGot:\n|------|----------|\n| spam |  41.9999 |\n| \u0001 |\n| eggs | 451      |\n\n=========================== short test summary info ============================\nFAILED test/test_output.py::test_simple_headerless_with_sep_line_with_padding_in_tablefmt\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 20 passed, 1 skipped in 0.14s\n",
+  "fix_commit_url": "https://github.com/astanin/python-tabulate/commit/0655054b4115f59607bbbd37e60f0897dd267261"
+}

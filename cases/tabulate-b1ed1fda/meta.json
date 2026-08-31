@@ -1,0 +1,20 @@
+{
+  "id": "tabulate-b1ed1fda",
+  "repo": "tabulate",
+  "upstream": "https://github.com/astanin/python-tabulate.git",
+  "license": "MIT",
+  "fix_commit": "b1ed1fda6f62b9069ef7d5871925399159d9dfc9",
+  "buggy_commit": "95ae5eb61ef969749e904c90ab429003238d6212",
+  "subject": "Fix support for separating lines",
+  "src_files": [
+    "tabulate/__init__.py"
+  ],
+  "oracle_test_files": [
+    "test/test_output.py"
+  ],
+  "src_churn": 13,
+  "pkg_dir": "tabulate",
+  "tests_dir": "test",
+  "oracle_failure_excerpt": ".........s......F\n=================================== FAILURES ===================================\n__________________________ test_orgtbl_with_sep_line ___________________________\n\n    def test_orgtbl_with_sep_line():\n        \"Output: orgtbl with headers and separating line\"\n        expected = \"\\n\".join(\n            [\n                \"| strings   |   numbers |\",\n                \"|-----------+-----------|\",\n                \"| spam      |   41.9999 |\",\n                \"|-----------+-----------|\",\n                \"| eggs      |  451      |\",\n            ]\n        )\n        result = tabulate(_test_table_with_sep_line, _test_table_headers, tablefmt=\"orgtbl\")\n>       assert_equal(expected, result)\n\ntest/test_output.py:272: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nexpected = '| strings   |   numbers |\\n|-----------+-----------|\\n| spam      |   41.9999 |\\n|-----------+-----------|\\n| eggs      |  451      |'\nresult = '| strings   |   numbers |\\n|-----------+-----------|\\n| spam      |   41.9999 |\\n| \\x01 |\\n| eggs      |  451      |'\n\n    def assert_equal(expected, result):\n        print(\"Expected:\\n%s\\n\" % expected)\n        print(\"Got:\\n%s\\n\" % result)\n>       assert expected == result\n               ^^^^^^^^^^^^^^^^^^\nE       AssertionError\n\ntest/common.py:8: AssertionError\n----------------------------- Captured stdout call -----------------------------\nExpected:\n| strings   |   numbers |\n|-----------+-----------|\n| spam      |   41.9999 |\n|-----------+-----------|\n| eggs      |  451      |\n\nGot:\n| strings   |   numbers |\n|-----------+-----------|\n| spam      |   41.9999 |\n| \u0001 |\n| eggs      |  451      |\n\n=========================== short test summary info ============================\nFAILED test/test_output.py::test_orgtbl_with_sep_line - AssertionError\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 15 passed, 1 skipped in 0.12s\n",
+  "fix_commit_url": "https://github.com/astanin/python-tabulate/commit/b1ed1fda6f62b9069ef7d5871925399159d9dfc9"
+}

@@ -1,0 +1,23 @@
+{
+  "id": "attrs-a71fbbad",
+  "repo": "attrs",
+  "upstream": "https://github.com/python-attrs/attrs.git",
+  "license": "MIT",
+  "fix_commit": "a71fbbad8950e127ebe4509b4ff0d730fb02a8b2",
+  "buggy_commit": "c6668fa419d096d4ba52047f8d10d510da4d1712",
+  "subject": "Fix @frozen exceptions to allow __traceback__ to be set. (#1081)",
+  "src_files": [
+    "src/attr/_make.py"
+  ],
+  "oracle_test_files": [
+    "tests/test_next_gen.py"
+  ],
+  "src_churn": 35,
+  "pkg_dir": "src/attr",
+  "tests_dir": "tests",
+  "oracle_failure_excerpt": "...................F\n=================================== FAILURES ===================================\n_________ TestNextGen.test_setting_traceback_on_exception[decorator0] __________\n\nself = <tests.test_next_gen.TestNextGen object at 0x1079e2ba0>\ndecorator = functools.partial(<function attrs at 0x107992de0>, frozen=True, slots=True, auto_exc=True)\n\n    @pytest.mark.parametrize(\n        \"decorator\",\n        [\n            partial(_attr.s, frozen=True, slots=True, auto_exc=True),\n            attrs.frozen,\n            attrs.define,\n            attrs.mutable,\n        ],\n    )\n    def test_setting_traceback_on_exception(self, decorator):\n        \"\"\"\n        contextlib.contextlib (re-)sets __traceback__ on raised exceptions.\n    \n        Ensure that works, as well as if done explicitly\n        \"\"\"\n    \n        @decorator\n        class MyException(Exception):\n            pass\n    \n        @contextmanager\n        def do_nothing():\n            yield\n    \n        with do_nothing(), pytest.raises(MyException) as ei:\n            raise MyException()\n    \n        assert isinstance(ei.value, MyException)\n    \n        # this should not raise an exception either\n>       ei.value.__traceback__ = ei.value.__traceback__\n        ^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_next_gen.py:346: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = MyException(), name = '__traceback__'\nvalue = <traceback object at 0x107987280>\n\n    def _frozen_setattrs(self, name, value):\n        \"\"\"\n        Attached to frozen classes as __setattr__.\n        \"\"\"\n>       raise FrozenInstanceError()\nE       attr.exceptions.FrozenInstanceError\n\nsrc/attr/_make.py:606: FrozenInstanceError\n=========================== short test summary info ============================\nFAILED tests/test_next_gen.py::TestNextGen::test_setting_traceback_on_exception[decorator0]\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed, 19 passed in 0.07s\n",
+  "upstream_refs": [
+    "https://github.com/python-attrs/attrs/issues/1081"
+  ],
+  "fix_commit_url": "https://github.com/python-attrs/attrs/commit/a71fbbad8950e127ebe4509b4ff0d730fb02a8b2"
+}

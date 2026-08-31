@@ -1,0 +1,1104 @@
+{
+  "system": "v4-discipline",
+  "model": "claude-sonnet-5",
+  "started": "2026-08-30T13:53:21+00:00",
+  "wall_seconds": 204.4,
+  "summary": {
+    "n": 17,
+    "repro": 15,
+    "repro_rate": 0.8824,
+    "verdicts": {
+      "REPRO": 15,
+      "WRONG_EXPECTATION": 2
+    },
+    "usd_total": 3.9074,
+    "usd_per_case": 0.22984,
+    "seconds_per_case": 52.7
+  },
+  "cases": [
+    {
+      "case_id": "boltons-c1c25da3",
+      "verdict": "REPRO",
+      "buggy_rc": 1,
+      "fixed_rc": 0,
+      "buggy_output": "FF.                                                                      [100%]\n=================================== FAILURES ===================================\n__________________ test_bits_value_equal_to_2_pow_len_raises ___________________\n\n    def test_bits_value_equal_to_2_pow_len_raises():\n        # 4 == 2**2, which does not fit in 2 bits (max value representable in\n        # 2 bits is 3, i.e. '11'). This should raise ValueError.\n>       with pytest.raises(ValueError):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE <class 'ValueError'>\n\ntests/test_regressgen_candidate.py:9: Failed\n___________________ test_bits_value_one_with_zero_len_raises ___________________\n\n    def test_bits_value_one_with_zero_len_raises():\n        # 1 does not fit in 0 bits, should raise ValueError.\n>       with pytest.raises(ValueError):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE <class 'ValueError'>\n\ntests/test_regressgen_candidate.py:15: Failed\n=========================== short test summary info ============================\nFAILED tests/test_regressgen_candidate.py::test_bits_value_equal_to_2_pow_len_raises\nFAILED tests/test_regressgen_candidate.py::test_bits_value_one_with_zero_len_raises\n2 failed, 1 passed in 0.38s\n",
+      "fixed_output": "...                                                                      [100%]\n3 passed in 0.37s\n",
+      "test_source": "\nimport pytest\nfrom boltons.mathutils import Bits\n\n\ndef test_bits_value_equal_to_2_pow_len_raises():\n    # 4 == 2**2, which does not fit in 2 bits (max value representable in\n    # 2 bits is 3, i.e. '11'). This should raise ValueError.\n    with pytest.raises(ValueError):\n        Bits(4, 2)\n\n\ndef test_bits_value_one_with_zero_len_raises():\n    # 1 does not fit in 0 bits, should raise ValueError.\n    with pytest.raises(ValueError):\n        Bits(1, 0)\n\n\ndef test_bits_max_fitting_value_still_works():\n    # Sanity check: the largest value that legitimately fits should still\n    # work and produce a bit string of the requested length.\n    b = Bits(3, 2)\n    assert b.as_bin() == '11'\n    assert len(b) == 2\n",
+      "attempts": 1,
+      "seconds": 23.1,
+      "usd": 0.10563,
+      "trajectory": [
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "class Bits"
+          },
+          "result": "1 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "boltons/mathutils.py",
+            "start": 124,
+            "end": 180
+          },
+          "result": "2466 chars"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nimport pytest\nfrom boltons.mathutils import Bits\n\n\ndef test_bits_value_equal_to_2_pow_len_raises():\n    # 4 == 2**2, which does not fit in 2 bits (max value is 3, i.e. '11')\n    with pytest.raises(ValueError):\n        Bits(4, 2)\n\n\ndef test_bits_value_one_with_zero_len_raises():\n    # 1 does not fit in 0 bits\n    with pytest.raises(ValueError):\n        Bits(1, 0)\n\n\ndef test_bits_max_fitting_value_still_works():\n    # sanity check: the largest value that DOES fit should still work\n    b = Bits(3, 2)\n    assert b.as_bin() == '11'\n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "submit_test",
+          "args": {
+            "rationale": "The report states that Bits(value, len_) should raise ValueError whenever value cannot be represented in len_ bits (i.e., value >= 2**len_), but the current implementation only raises when value > 2**len_, off by one. This lets Bits(4, 2) and Bits(1, 0) through even though 4 and 1 don't fit in 2 and 0 bits respectively. The test file reproduces both reported failing cases (Bits(4,2) and Bits(1,0) "
+          },
+          "result": "submitted"
+        }
+      ],
+      "rationale": "The report states that Bits(value, len_) should raise ValueError whenever value cannot be represented in len_ bits (i.e., value >= 2**len_), but the current implementation only raises when value > 2**len_, off by one. This lets Bits(4, 2) and Bits(1, 0) through even though 4 and 1 don't fit in 2 and 0 bits respectively. The test file reproduces both reported failing cases (Bits(4,2) and Bits(1,0) should raise ValueError but currently don't) and includes a sanity check that the correct boundary case (Bits(3,2), the largest value that legitimately fits in 2 bits) still works and is unaffected by the fix. Verified via run_test that the two regression assertions fail against the current buggy code (DID NOT RAISE ValueError) while the sanity-check case passes, confirming the test isolates exactly the off-by-one validation bug described in the report."
+    },
+    {
+      "case_id": "boltons-eb659013",
+      "verdict": "REPRO",
+      "buggy_rc": 1,
+      "fixed_rc": 0,
+      "buggy_output": " maxlen=None):\n        \"\"\"Get the Table's textual representation. Only works well\n        for Tables with non-recursive data.\n    \n        Args:\n            with_headers (bool): Whether to include a header row at the top.\n            maxlen (int): Max length of data in each cell.\n        \"\"\"\n        lines = []\n        widths = []\n        headers = list(self.headers)\n        text_data = [[to_text(cell, maxlen=maxlen) for cell in row]\n                     for row in self._data]\n        for idx in range(self._width):\n            cur_widths = [len(row[idx]) for row in text_data]\n            if with_headers:\n>               cur_widths.append(len(to_text(headers[idx], maxlen=maxlen)))\n                                              ^^^^^^^^^^^^\nE               IndexError: list index out of range\n\nboltons/tableutils.py:574: IndexError\n________________ test_to_text_none_header_rendered_as_data_cell ________________\n\n    def test_to_text_none_header_rendered_as_data_cell():\n        # A None header cell should be rendered as the text 'None', just\n        # like a None data cell, rather than raising\n        # \"AttributeError: 'NoneType' object has no attribute 'center'\".\n        t = Table([[None, 'b'], [1, 2]])\n>       result = t.to_text()\n                 ^^^^^^^^^^^\n\ntests/test_regressgen_candidate.py:42: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = Table(headers=[None, 'b'], data=[[1, 2]]), with_headers = True\nmaxlen = None\n\n    def to_text(self, with_headers=True, maxlen=None):\n        \"\"\"Get the Table's textual representation. Only works well\n        for Tables with non-recursive data.\n    \n        Args:\n            with_headers (bool): Whether to include a header row at the top.\n            maxlen (int): Max length of data in each cell.\n        \"\"\"\n        lines = []\n        widths = []\n        headers = list(self.headers)\n        text_data = [[to_text(cell, maxlen=maxlen) for cell in row]\n                     for row in self._data]\n        for idx in range(self._width):\n            cur_widths = [len(row[idx]) for row in text_data]\n            if with_headers:\n                cur_widths.append(len(to_text(headers[idx], maxlen=maxlen)))\n            widths.append(max(cur_widths))\n        if with_headers:\n>           lines.append(' | '.join([h.center(widths[i])\n                                     ^^^^^^^^\n                                     for i, h in enumerate(headers)]))\nE           AttributeError: 'NoneType' object has no attribute 'center'\n\nboltons/tableutils.py:577: AttributeError\n=========================== short test summary info ============================\nFAILED tests/test_regressgen_candidate.py::test_to_text_empty_row_table - Val...\nFAILED tests/test_regressgen_candidate.py::test_to_text_ragged_rows_no_headers\nFAILED tests/test_regressgen_candidate.py::test_to_text_headers_padded_when_short\nFAILED tests/test_regressgen_candidate.py::test_to_text_none_header_rendered_as_data_cell\n4 failed in 0.41s\n",
+      "fixed_output": "....                                                                     [100%]\n4 passed in 0.36s\n",
+      "test_source": "\nfrom boltons.tableutils import Table\n\n\ndef test_to_text_empty_row_table():\n    # A table built from a single empty row has no real data at all.\n    # Constructing it and rendering it as text should not blow up with\n    # \"ValueError: max() iterable argument is empty\" -- it should just\n    # produce an empty string.\n    t = Table([[]])\n    assert t.to_text() == ''\n\n\ndef test_to_text_ragged_rows_no_headers():\n    # Rows of different lengths and no headers should not raise an\n    # IndexError when computing column widths / rendering; missing\n    # header info should just mean no header row is rendered.\n    t = Table([[], [1]])\n    assert t.to_text() == '1'\n\n\ndef test_to_text_headers_padded_when_short():\n    # If headers end up shorter than the row width (e.g. because the\n    # caller reassigned .headers directly), to_text() should pad the\n    # headers out (like missing data cells are padded with None)\n    # instead of raising an IndexError.\n    t = Table([[1, 2]], headers=[])\n    t.headers = ['a']\n    result = t.to_text()\n    header_line = result.split('\\n')[0]\n    cells = [c.strip() for c in header_line.split('|')]\n    assert len(cells) == 2\n    assert cells[0] == 'a'\n    assert cells[1] == 'None'\n\n\ndef test_to_text_none_header_rendered_as_data_cell():\n    # A None header cell should be rendered as the text 'None', just\n    # like a None data cell, rather than raising\n    # \"AttributeError: 'NoneType' object has no attribute 'center'\".\n    t = Table([[None, 'b'], [1, 2]])\n    result = t.to_text()\n    header_line = result.split('\\n')[0]\n    cells = [c.strip() for c in header_line.split('|')]\n    assert cells[0] == 'None'\n    assert cells[1] == 'b'\n",
+      "attempts": 1,
+      "seconds": 148.6,
+      "usd": 0.4464,
+      "trajectory": [
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "def to_text"
+          },
+          "result": "4 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "boltons/tableutils.py",
+            "start": 540,
+            "end": 610
+          },
+          "result": "2266 chars"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "boltons/tableutils.py",
+            "start": 1,
+            "end": 120
+          },
+          "result": "5140 chars"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "boltons/tableutils.py",
+            "start": 340,
+            "end": 460
+          },
+          "result": "5849 chars"
+        },
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "_width|def headers|self\\.headers ="
+          },
+          "result": "15 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "boltons/tableutils.py",
+            "start": 255,
+            "end": 330
+          },
+          "result": "3257 chars"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nfrom boltons.tableutils import Table\n\ndef test_debug():\n    try:\n        t = Table([[]])\n        print(\"created\", t._data, t._width, t.headers)\n        out = t.to_text()\n        print(\"to_text result:\", repr(out))\n    except Exception as e:\n        print(\"EXC1\", type(e), e)\n\n    try:\n        t2 = Table([[], [1]])\n        print(\"created2\", t2._data, t2._width, t2.headers)\n        out2 = t2.to_text()\n        print(\"to_text result2:\", repr(out2))\n    except Exception as e:\n        print(\"EXC2\", type(e), e)\n\n    try:\n        t3 = Table([[1, 2]], headers=[])\n        t3.headers = ['a']\n        out3"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "list_files",
+          "args": {
+            "subdir": "tests"
+          },
+          "result": "tests/__init__.py\ntests/conftest.py\ntests/test_cacheutils.py\ntests/test_debugutils_trace.py\ntests/test_dictutils.py\ntests/test_ecoutils.py\ntests/test_fileutils.py\ntests/test_formatutils.py\ntests/test_funcutils.py\ntests/test_funcutils_fb.py\ntests/test_funcutils_fb_py3.py\ntests/test_gcutils.py\ntests/test_ioutils.py\ntests/test_iterutils.py\ntests/test_jsonutils.py\ntests/test_listutils.py\ntests/test_mathutils.py\ntests/test_namedutils.py\ntests/test_pathutils.py\ntests/test_queueutils.py\ntests/test_setutils.py\ntests/test_socketutils.py\ntests/test_statsutils.py\ntests/test_statsutils_histogram.py\ntests/test_strutils.py\ntests/test_tableutils.py\ntests/test_tbutils.py\ntests/test_tbutils_parsed_exc.py\ntests/test_timeutils.py\ntests/test_typeutils.py\ntests/test_urlutils.py"
+        },
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "to_text"
+          },
+          "result": "65 hits"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nfrom boltons.tableutils import Table\nimport pytest\n\n\ndef test_to_text_empty_row_table():\n    # An empty row should not blow up; a table with no real data\n    # should render as an empty string.\n    t = Table([[]])\n    assert t.to_text() == ''\n\n\ndef test_to_text_ragged_rows_no_headers():\n    # Rows of different lengths and no headers should not raise an\n    # IndexError; missing header info just means no header row.\n    t = Table([[], [1]])\n    assert t.to_text() == '1'\n\n\ndef test_to_text_headers_padded_when_short():\n    # If headers are shorter than the row width, they should be\n    # padded "
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "submit_test",
+          "args": {
+            "rationale": "The bug report lists four Table.to_text() edge cases that currently raise exceptions instead of producing sensible output: (1) a table built from a single empty row (ValueError from max() on empty sequence), (2) ragged rows with no headers (IndexError from indexing into an empty headers list), (3) headers shorter than the row width after being reassigned (IndexError for the same reason), and (4) a"
+          },
+          "result": "submitted"
+        }
+      ],
+      "rationale": "The bug report lists four Table.to_text() edge cases that currently raise exceptions instead of producing sensible output: (1) a table built from a single empty row (ValueError from max() on empty sequence), (2) ragged rows with no headers (IndexError from indexing into an empty headers list), (3) headers shorter than the row width after being reassigned (IndexError for the same reason), and (4) a None header cell (AttributeError from calling .center() on None). Each test constructs the exact scenario from the report and asserts the \"sensible\" output the reporter expects: empty string for the empty table, no header row when headers are absent, headers padded out to match row width (using the same None-as-missing-value convention the data rows already use), and None header cells rendered as the text 'None' just like None data cells. I verified via run_test that all four tests fail on the current buggy code with precisely the exceptions described in the report (ValueError, IndexError, IndexError, AttributeError respectively), and that the assertions encode the correct/expected behavior (not the buggy behavior), so they should pass once the reported bug is fixed."
+    },
+    {
+      "case_id": "boltons-f1034b07",
+      "verdict": "REPRO",
+      "buggy_rc": 1,
+      "fixed_rc": 0,
+      "buggy_output": "=== FAILURES ===================================\n___________ test_jsonl_iterator_rel_seek_no_trailing_newline_no_hang ___________\n\ntmp_path = PosixPath('/private/tmp/pytest-of-hiloliddin/pytest-26/test_jsonl_iterator_rel_seek_n0')\n\n    def test_jsonl_iterator_rel_seek_no_trailing_newline_no_hang(tmp_path):\n        # Regression test: JSONLIterator used to hang forever (never returning,\n        # never raising) when a rel_seek value landed inside the last line of a\n        # file that doesn't end with a newline. Iterating such an iterator must\n        # complete (with a result or a clear exception), not spin forever.\n        path = tmp_path / \"no_trailing_newline.jsonl\"\n        path.write_text('{\"1\": 1}\\n{\"2\": 2}')\n    \n        def run():\n            it = JSONLIterator(open(str(path)), rel_seek=0.9)\n            return list(it)\n    \n        status, value = _run_with_timeout(run, timeout=3.0)\n    \n>       assert status != 'timeout', (\n            \"JSONLIterator hung indefinitely when rel_seek landed inside the \"\n            \"last line of a file with no trailing newline\"\n        )\nE       AssertionError: JSONLIterator hung indefinitely when rel_seek landed inside the last line of a file with no trailing newline\nE       assert 'timeout' != 'timeout'\n\ntests/test_regressgen_candidate.py:45: AssertionError\n_________ test_jsonl_iterator_negative_rel_seek_no_hang_and_in_bounds __________\n\ntmp_path = PosixPath('/private/tmp/pytest-of-hiloliddin/pytest-26/test_jsonl_iterator_negative_r0')\n\n    def test_jsonl_iterator_negative_rel_seek_no_hang_and_in_bounds(tmp_path):\n        # Regression test: a negative rel_seek value is documented/expected to\n        # seek relative to the end of the file (like a negative index), e.g.\n        # -0.5 should land around the midpoint of the file. The buggy\n        # implementation instead computed a target position beyond the end of\n        # the file, which caused JSONLIterator to hang forever trying to align\n        # to the next newline past EOF.\n        path = tmp_path / \"normal.jsonl\"\n        lines = ['{\"n\": %d}' % i for i in range(20)]\n        content = '\\n'.join(lines) + '\\n'\n        path.write_text(content)\n        size = len(content)\n    \n        def run():\n            it = JSONLIterator(open(str(path)), rel_seek=-0.5)\n            return it.cur_byte_pos\n    \n        status, value = _run_with_timeout(run, timeout=3.0)\n    \n>       assert status != 'timeout', (\n            \"JSONLIterator hung indefinitely with a negative rel_seek value\"\n        )\nE       AssertionError: JSONLIterator hung indefinitely with a negative rel_seek value\nE       assert 'timeout' != 'timeout'\n\ntests/test_regressgen_candidate.py:73: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_regressgen_candidate.py::test_jsonl_iterator_rel_seek_no_trailing_newline_no_hang\nFAILED tests/test_regressgen_candidate.py::test_jsonl_iterator_negative_rel_seek_no_hang_and_in_bounds\n2 failed in 6.47s\n",
+      "fixed_output": "..                                                                       [100%]\n2 passed in 0.37s\n",
+      "test_source": "import queue\nimport threading\n\nfrom boltons.jsonutils import JSONLIterator\n\n\ndef _run_with_timeout(func, timeout=3.0):\n    \"\"\"Run func() in a daemon thread and report whether it finished in time.\n\n    Returns a tuple of (status, value) where status is one of:\n      'ok'      -- func() returned normally, value is the return value\n      'error'   -- func() raised an exception, value is the exception\n      'timeout' -- func() did not complete within `timeout` seconds\n    \"\"\"\n    result_q = queue.Queue()\n\n    def target():\n        try:\n            result_q.put(('ok', func()))\n        except Exception as e:\n            result_q.put(('error', e))\n\n    t = threading.Thread(target=target, daemon=True)\n    t.start()\n    t.join(timeout)\n    if t.is_alive():\n        return ('timeout', None)\n    return result_q.get_nowait()\n\n\ndef test_jsonl_iterator_rel_seek_no_trailing_newline_no_hang(tmp_path):\n    # Regression test: JSONLIterator used to hang forever (never returning,\n    # never raising) when a rel_seek value landed inside the last line of a\n    # file that doesn't end with a newline. Iterating such an iterator must\n    # complete (with a result or a clear exception), not spin forever.\n    path = tmp_path / \"no_trailing_newline.jsonl\"\n    path.write_text('{\"1\": 1}\\n{\"2\": 2}')\n\n    def run():\n        it = JSONLIterator(open(str(path)), rel_seek=0.9)\n        return list(it)\n\n    status, value = _run_with_timeout(run, timeout=3.0)\n\n    assert status != 'timeout', (\n        \"JSONLIterator hung indefinitely when rel_seek landed inside the \"\n        \"last line of a file with no trailing newline\"\n    )\n    # It's fine for it to raise a clear error, but it must not hang, and for\n    # this well-formed input it should actually succeed.\n    assert status == 'ok', \"unexpected error: %r\" % (value,)\n\n\ndef test_jsonl_iterator_negative_rel_seek_no_hang_and_in_bounds(tmp_path):\n    # Regression test: a negative rel_seek value is documented/expected to\n    # seek relative to the end of the file (like a negative index), e.g.\n    # -0.5 should land around the midpoint of the file. The buggy\n    # implementation instead computed a target position beyond the end of\n    # the file, which caused JSONLIterator to hang forever trying to align\n    # to the next newline past EOF.\n    path = tmp_path / \"normal.jsonl\"\n    lines = ['{\"n\": %d}' % i for i in range(20)]\n    content = '\\n'.join(lines) + '\\n'\n    path.write_text(content)\n    size = len(content)\n\n    def run():\n        it = JSONLIterator(open(str(path)), rel_seek=-0.5)\n        return it.cur_byte_pos\n\n    status, value = _run_with_timeout(run, timeout=3.0)\n\n    assert status != 'timeout', (\n        \"JSONLIterator hung indefinitely with a negative rel_seek value\"\n    )\n    assert status == 'ok', \"unexpected error: %r\" % (value,)\n\n    pos = value\n    assert 0 <= pos <= size, (\n        \"negative rel_seek should seek from the end of the file like a \"\n        \"negative index, not past the end of the file (pos=%r, size=%r)\"\n        % (pos, size)\n    )\n",
+      "attempts": 1,
+      "seconds": 130.4,
+      "usd": 0.30394,
+      "trajectory": [
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "boltons/jsonutils.py",
+            "start": 1,
+            "end": 400
+          },
+          "result": "11773 chars"
+        },
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "rel_seek"
+          },
+          "result": "15 hits"
+        },
+        {
+          "tool": "list_files",
+          "args": {
+            "subdir": "tests"
+          },
+          "result": "tests/__init__.py\ntests/conftest.py\ntests/test_cacheutils.py\ntests/test_debugutils_trace.py\ntests/test_dictutils.py\ntests/test_ecoutils.py\ntests/test_fileutils.py\ntests/test_formatutils.py\ntests/test_funcutils.py\ntests/test_funcutils_fb.py\ntests/test_funcutils_fb_py3.py\ntests/test_gcutils.py\ntests/test_ioutils.py\ntests/test_iterutils.py\ntests/test_jsonutils.py\ntests/test_listutils.py\ntests/test_mathutils.py\ntests/test_namedutils.py\ntests/test_pathutils.py\ntests/test_queueutils.py\ntests/test_setutils.py\ntests/test_socketutils.py\ntests/test_statsutils.py\ntests/test_statsutils_histogram.py\ntests/test_strutils.py\ntests/test_tableutils.py\ntests/test_tbutils.py\ntests/test_tbutils_parsed_exc.py\ntests/test_timeutils.py\ntests/test_typeutils.py\ntests/test_urlutils.py"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "tests/test_jsonutils.py",
+            "start": 0,
+            "end": 400
+          },
+          "result": "1605 chars"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "import queue\nimport threading\n\nfrom boltons.jsonutils import JSONLIterator\n\n\ndef _run_with_timeout(func, timeout=3.0):\n    result_q = queue.Queue()\n\n    def target():\n        try:\n            result_q.put(('ok', func()))\n        except Exception as e:\n            result_q.put(('error', e))\n\n    t = threading.Thread(target=target, daemon=True)\n    t.start()\n    t.join(timeout)\n    if t.is_alive():\n        return ('timeout', None)\n    status, value = result_q.get_nowait()\n    return (status, value)\n\n\ndef test_jsonl_iterator_rel_seek_no_trailing_newline_no_hang(tmp_path):\n    path = tmp_path / \"n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "submit_test",
+          "args": {
+            "rationale": "The bug report describes JSONLIterator hanging forever in two related scenarios, both rooted in JSONLIterator._align_to_newline's infinite `while '\\n' not in cur` loop, which never terminates once file_obj.read() starts returning '' at EOF (empty string never contains '\\n', but a plain read-loop check on it looks like it does since `'\\n' not in ''` is True forever): (1) rel_seek landing inside the"
+          },
+          "result": "submitted"
+        }
+      ],
+      "rationale": "The bug report describes JSONLIterator hanging forever in two related scenarios, both rooted in JSONLIterator._align_to_newline's infinite `while '\\n' not in cur` loop, which never terminates once file_obj.read() starts returning '' at EOF (empty string never contains '\\n', but a plain read-loop check on it looks like it does since `'\\n' not in ''` is True forever): (1) rel_seek landing inside the final line of a file lacking a trailing newline, and (2) a negative rel_seek value, which the buggy code turns into `1.0 - rel_seek` (e.g. -0.5 -> 1.5), seeking past the end of the file and hitting the same infinite loop instead of the expected `1.0 + rel_seek` \"seek from the end\" semantics.\n\nSince the bug manifests as a genuine infinite busy-loop (no exception, no return), a plain assertion can't observe it directly -- the test itself would hang. So each test runs the reproduction in a daemon thread with a bounded join() timeout and asserts the thread completed (status != 'timeout'), which is exactly the failure mode described in the report (\"never returns, never raises\"). This construction fails deterministically on the buggy code (confirmed via run_test: both cases report 'timeout') and will pass once the hang is fixed and iteration actually completes.\n\nThe first test additionally asserts the completed run didn't error, matching the report's expectation that construction/iteration should complete normally for this well-formed input. The second test additionally asserts the resulting file position stays within the file's bounds (0 <= pos <= size), directly encoding the report's expectation that negative rel_seek must seek from within the file (like a negative index) rather than past its end -- something the buggy `1.0 - rel_seek` formula violates by design, while any reasonable fix implementing \"seek from the end\" must satisfy."
+    },
+    {
+      "case_id": "cachetools-57d2e481",
+      "verdict": "REPRO",
+      "buggy_rc": 1,
+      "fixed_rc": 0,
+      "buggy_output": "silently\n        working.\n    \n        Per the bug report, ``create_autospec`` should work normally (or at\n        least not throw) on classes using @cachedmethod, the same as it does\n        for plain, undecorated methods.\n        \"\"\"\n        # Should not raise AttributeError/TypeError while unittest.mock\n        # introspects the class attributes of Cached.\n>       mock_instance = unittest.mock.create_autospec(Cached, instance=True)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_regressgen_candidate.py:34: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n~/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/unittest/mock.py:2773: in create_autospec\n    mock = Klass(parent=_parent, _new_parent=_parent, _new_name=_new_name,\n~/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/unittest/mock.py:2139: in __init__\n    _safe_super(MagicMixin, self).__init__(*args, **kw)\n~/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/unittest/mock.py:460: in __init__\n    self._mock_add_spec(spec, spec_set, _spec_as_instance, _eat_self)\n~/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/lib/python3.12/unittest/mock.py:529: in _mock_add_spec\n    if iscoroutinefunction(getattr(spec, attr, None)):\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <cachetools._cachedmethod._unlocked_info.<locals>.Descriptor object at 0x108eb2c30>\nobj = None, objtype = <class 'tests.test_regressgen_candidate.Cached'>\n\n    def __get__(self, obj, objtype=None):\n        wrapper = self.Wrapper(obj)\n        if self.__attrname is not None:\n            # replace descriptor instance with wrapper in instance dict\n            try:\n                # In case of a race condition where another thread already replaced\n                # the descriptor, prefer the initial wrapper.\n                wrapper = obj.__dict__.setdefault(self.__attrname, wrapper)\n            except AttributeError:\n                # not all objects have __dict__ (e.g. class defines slots)\n                msg = (\n                    f\"No '__dict__' attribute on {type(obj).__name__!r} \"\n                    f\"instance to cache {self.__attrname!r} property.\"\n                )\n                if self.__deprecated:\n                    _warn_instance_dict(msg, 3)\n                else:\n>                   raise TypeError(msg) from None\nE                   TypeError: No '__dict__' attribute on 'NoneType' instance to cache 'get' property.\n\n<sandbox>:95: TypeError\n=========================== short test summary info ============================\nFAILED tests/test_regressgen_candidate.py::test_create_autospec_does_not_raise_for_cachedmethod\n1 failed in 0.41s\n",
+      "fixed_output": ".                                                                        [100%]\n1 passed in 0.37s\n",
+      "test_source": "\nimport unittest.mock\n\nfrom cachetools import cachedmethod, LRUCache\n\n\nclass Cached:\n    def __init__(self):\n        self.cache = LRUCache(maxsize=10)\n\n    @cachedmethod(lambda self: self.cache, info=True)\n    def get(self, key):\n        return key\n\n\ndef test_create_autospec_does_not_raise_for_cachedmethod():\n    \"\"\"Regression test for: unittest.mock.create_autospec blows up on a\n    class that has a @cachedmethod-decorated method.\n\n    unittest.mock introspects class attributes by calling\n    ``getattr(spec, attr, None)`` on the *class* (not an instance), which\n    invokes the cachedmethod descriptor's ``__get__`` with ``obj=None``.\n    The descriptor implementation then tries to use ``obj.__dict__`` to\n    cache the wrapper, which blows up for ``obj=None`` and (in this\n    variant of the decorator) surfaces as an error instead of silently\n    working.\n\n    Per the bug report, ``create_autospec`` should work normally (or at\n    least not throw) on classes using @cachedmethod, the same as it does\n    for plain, undecorated methods.\n    \"\"\"\n    # Should not raise AttributeError/TypeError while unittest.mock\n    # introspects the class attributes of Cached.\n    mock_instance = unittest.mock.create_autospec(Cached, instance=True)\n\n    # The autospec'd mock should provide a normal, callable \"get\"\n    # attribute, just like it would for a plain (undecorated) method.\n    assert callable(mock_instance.get)\n    mock_instance.get(\"some_key\")\n    mock_instance.get.assert_called_once_with(\"some_key\")\n",
+      "attempts": 1,
+      "seconds": 107.4,
+      "usd": 0.3844,
+      "trajectory": [
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "def cachedmethod"
+          },
+          "result": "1 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "src/cachetools/__init__.py",
+            "start": 700,
+            "end": 850
+          },
+          "result": "2758 chars"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "src/cachetools/_cachedmethod.py",
+            "start": 0,
+            "end": 400
+          },
+          "result": "16390 chars"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nimport unittest.mock\n\nfrom cachetools import cachedmethod, LRUCache\n\n\nclass Cached:\n    def __init__(self):\n        self.cache = LRUCache(maxsize=10)\n\n    @cachedmethod(lambda self: self.cache)\n    def get(self, key):\n        return key\n\n\ndef test_create_autospec_on_cachedmethod_class():\n    # Regression test: unittest.mock.create_autospec used to raise\n    # AttributeError when introspecting a class with a @cachedmethod\n    # decorated method, because the descriptor's __get__ did not handle\n    # being called with obj=None (class-level attribute access).\n    mock_instance = unittest.mock.cre"
+          },
+          "result": "PASSED (exit 0) \u2014 this test does NOT reproduce the bug"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nimport unittest.mock\n\nfrom cachetools import cachedmethod, LRUCache\n\n\nclass Cached:\n    def __init__(self):\n        self.cache = LRUCache(maxsize=10)\n\n    @cachedmethod(lambda self: self.cache, info=True)\n    def get(self, key):\n        return key\n\n\ndef test_create_autospec_on_cachedmethod_class_info():\n    mock_instance = unittest.mock.create_autospec(Cached, instance=True)\n    assert mock_instance is not None\n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "filterwarnings"
+          },
+          "result": "0 hits"
+        },
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "create_autospec|autospec|obj is None"
+          },
+          "result": "0 hits"
+        },
+        {
+          "tool": "list_files",
+          "args": {
+            "subdir": "."
+          },
+          "result": "docs/conf.py\nsrc/cachetools/__init__.py\nsrc/cachetools/_cached.py\nsrc/cachetools/_cachedmethod.py\nsrc/cachetools/func.py\nsrc/cachetools/keys.py\ntests/__init__.py\ntests/test_cache.py\ntests/test_cached.py\ntests/test_cachedmethod.py\ntests/test_classmethod.py\ntests/test_fifo.py\ntests/test_func.py\ntests/test_keys.py\ntests/test_lfu.py\ntests/test_lru.py\ntests/test_rr.py\ntests/test_threading.py\ntests/test_tlru.py\ntests/test_ttl.py"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nimport unittest.mock\n\nimport pytest\n\nfrom cachetools import cachedmethod, LRUCache\n\n\nclass Cached:\n    def __init__(self):\n        self.cache = LRUCache(maxsize=10)\n\n    @cachedmethod(lambda self: self.cache, info=True)\n    def get(self, key):\n        return key\n\n\ndef test_create_autospec_does_not_raise_for_cachedmethod():\n    \"\"\"Regression test for: create_autospec blows up with an\n    AttributeError/TypeError on classes using @cachedmethod because the\n    descriptor's __get__ mishandles being invoked with obj=None during\n    class-level attribute introspection (as unittest.mock does).\n\n    "
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "submit_test",
+          "args": {
+            "rationale": "The bug report describes unittest.mock.create_autospec raising an error while introspecting a class that has a @cachedmethod-decorated method. Investigation of src/cachetools/_cachedmethod.py shows the root cause: unittest.mock accesses attributes on the *class* itself (e.g. via getattr(spec_class, attr, None)) as part of its introspection, which invokes the cachedmethod descriptor's __get__(obj=N"
+          },
+          "result": "submitted"
+        }
+      ],
+      "rationale": "The bug report describes unittest.mock.create_autospec raising an error while introspecting a class that has a @cachedmethod-decorated method. Investigation of src/cachetools/_cachedmethod.py shows the root cause: unittest.mock accesses attributes on the *class* itself (e.g. via getattr(spec_class, attr, None)) as part of its introspection, which invokes the cachedmethod descriptor's __get__(obj=None, objtype=cls). The descriptor implementation (_DescriptorBase.__get__) unconditionally tries to do `obj.__dict__.setdefault(...)`, and since obj is None, this raises AttributeError. For the plain (non-info) decorator variants, this AttributeError is caught and merely turned into a DeprecationWarning (an incidental side effect of the deprecated-classmethod-support code path), so create_autospec happens to survive for the simplest case. However, for the info=True variant (and other non-\"deprecated\" descriptor variants), the same AttributeError is caught and re-raised as a hard TypeError, causing create_autospec to fail outright - reproducing the exact class of bug described in the report (mock's introspection breaking because it passes obj=None to the descriptor).\n\nThe submitted test builds a class using @cachedmethod(..., info=True) (mirroring the report's example but on the currently-broken variant) and asserts that unittest.mock.create_autospec(..., instance=True) succeeds and produces a normal, callable mocked \"get\" method - exactly the expected behavior stated in the report (\"create_autospec should work normally... same as it does for plain methods\"). I verified via run_test that this fails on the current buggy code with a TypeError raised deep inside the descriptor's __get__ (matching the reported failure mode), and that a correct fix (making __get__ tolerate obj=None, e.g. by returning the descriptor itself for class-level access, consistent with normal Python descriptor/function semantics) would make this test pass."
+    },
+    {
+      "case_id": "cachetools-bb4b37cf",
+      "verdict": "REPRO",
+      "buggy_rc": 1,
+      "fixed_rc": 0,
+      "buggy_output": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________ test_ttlcache_expire_returns_expired_items __________________\n\n    def test_ttlcache_expire_returns_expired_items():\n        cache = TTLCache(maxsize=10, ttl=timedelta(days=1), timer=datetime.now)\n        cache[1] = \"a\"\n        cache[2] = \"b\"\n    \n        # Nothing should be expired yet.\n        result = cache.expire(datetime.now())\n>       assert list(result) == []\n               ^^^^^^^^^^^^\nE       TypeError: 'NoneType' object is not iterable\n\ntests/test_regressgen_candidate.py:14: TypeError\n=========================== short test summary info ============================\nFAILED tests/test_regressgen_candidate.py::test_ttlcache_expire_returns_expired_items\n1 failed in 0.39s\n",
+      "fixed_output": ".                                                                        [100%]\n1 passed in 0.38s\n",
+      "test_source": "\nfrom datetime import datetime, timedelta\n\nfrom cachetools import TTLCache\n\n\ndef test_ttlcache_expire_returns_expired_items():\n    cache = TTLCache(maxsize=10, ttl=timedelta(days=1), timer=datetime.now)\n    cache[1] = \"a\"\n    cache[2] = \"b\"\n\n    # Nothing should be expired yet.\n    result = cache.expire(datetime.now())\n    assert list(result) == []\n\n    # Advance time past the ttl so both items are expired.\n    future = datetime.now() + timedelta(days=2)\n    expired = cache.expire(future)\n\n    # Must be iterable (bug report: expire() returned None, causing\n    # TypeError: 'NoneType' object is not iterable when calling list()).\n    expired_list = list(expired)\n\n    assert sorted(expired_list) == [(1, \"a\"), (2, \"b\")]\n    assert len(cache) == 0\n",
+      "attempts": 1,
+      "seconds": 27.5,
+      "usd": 0.15784,
+      "trajectory": [
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "def expire"
+          },
+          "result": "2 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "src/cachetools/__init__.py",
+            "start": 440,
+            "end": 620
+          },
+          "result": "7182 chars"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "src/cachetools/__init__.py",
+            "start": 380,
+            "end": 440
+          },
+          "result": "2374 chars"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nfrom datetime import datetime, timedelta\n\nfrom cachetools import TTLCache\n\n\ndef test_ttlcache_expire_returns_expired_items():\n    cache = TTLCache(maxsize=10, ttl=timedelta(days=1), timer=datetime.now)\n    cache[1] = \"a\"\n    cache[2] = \"b\"\n\n    # Nothing should be expired yet.\n    result = cache.expire(datetime.now())\n    assert list(result) == []\n\n    # Advance time past the ttl so both items are expired.\n    future = datetime.now() + timedelta(days=2)\n    expired = cache.expire(future)\n\n    # Must be iterable (bug report: expire() returned None, causing\n    # TypeError: 'NoneType' object is"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "submit_test",
+          "args": {
+            "rationale": "The bug report states that TTLCache.expire() returns None instead of an iterable of the expired (key, value) pairs, causing `list(cache.expire(...))` to raise TypeError. This test reproduces exactly that scenario: it inserts two items, confirms expire() with a non-expiring time yields an empty iterable, then advances time past the ttl and asserts that expire() returns an iterable containing the ex"
+          },
+          "result": "submitted"
+        }
+      ],
+      "rationale": "The bug report states that TTLCache.expire() returns None instead of an iterable of the expired (key, value) pairs, causing `list(cache.expire(...))` to raise TypeError. This test reproduces exactly that scenario: it inserts two items, confirms expire() with a non-expiring time yields an empty iterable, then advances time past the ttl and asserts that expire() returns an iterable containing the expired (key, value) pairs, and that the cache is now empty. On the current buggy implementation, expire() returns None so list(result) raises TypeError, causing the test to fail. On a fixed implementation that returns the expired items (e.g., as a list/generator of (key, value) tuples), the test will pass."
+    },
+    {
+      "case_id": "cachetools-c0fdf6ab",
+      "verdict": "REPRO",
+      "buggy_rc": 1,
+      "fixed_rc": 0,
+      "buggy_output": "F                                                                        [100%]\n=================================== FAILURES ===================================\n______________ test_setitem_with_already_expired_value_drops_key _______________\n\n    def test_setitem_with_already_expired_value_drops_key():\n        \"\"\"Regression test.\n    \n        Setting an existing key in a TLRUCache to a value whose ttu makes it\n        already expired at insertion time must drop the key (so subsequent\n        lookups behave as if the key is absent), instead of silently keeping\n        the previous, now-stale value being served forever.\n        \"\"\"\n        cache = TLRUCache(maxsize=2, ttu=ttu, timer=lambda: 0)\n        cache[1] = 5\n        assert cache[1] == 5\n    \n        # ttu(1, 0, t) == t, so the new value is expired the instant it's set.\n        cache[1] = 0\n    \n        # The stale old value must not still be served.\n>       assert 1 not in cache\nE       assert 1 not in TLRUCache({1: 5}, maxsize=2, currsize=1)\n\ntests/test_regressgen_candidate.py:25: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_regressgen_candidate.py::test_setitem_with_already_expired_value_drops_key\n1 failed in 0.39s\n",
+      "fixed_output": ".                                                                        [100%]\n1 passed in 0.38s\n",
+      "test_source": "\nfrom cachetools import TLRUCache\n\n\ndef ttu(_k, value, t):\n    return t + value\n\n\ndef test_setitem_with_already_expired_value_drops_key():\n    \"\"\"Regression test.\n\n    Setting an existing key in a TLRUCache to a value whose ttu makes it\n    already expired at insertion time must drop the key (so subsequent\n    lookups behave as if the key is absent), instead of silently keeping\n    the previous, now-stale value being served forever.\n    \"\"\"\n    cache = TLRUCache(maxsize=2, ttu=ttu, timer=lambda: 0)\n    cache[1] = 5\n    assert cache[1] == 5\n\n    # ttu(1, 0, t) == t, so the new value is expired the instant it's set.\n    cache[1] = 0\n\n    # The stale old value must not still be served.\n    assert 1 not in cache\n    try:\n        value = cache[1]\n    except KeyError:\n        pass\n    else:\n        assert False, f\"expected KeyError, got stale value {value!r}\"\n",
+      "attempts": 1,
+      "seconds": 31.7,
+      "usd": 0.1528,
+      "trajectory": [
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "class TLRUCache"
+          },
+          "result": "2 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "src/cachetools/__init__.py",
+            "start": 587,
+            "end": 680
+          },
+          "result": "3917 chars"
+        },
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "def __missing__"
+          },
+          "result": "3 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "src/cachetools/__init__.py",
+            "start": 95,
+            "end": 110
+          },
+          "result": "535 chars"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nfrom cachetools import TLRUCache\n\n\ndef ttu(_k, value, t):\n    return t + value\n\n\ndef test_setitem_with_already_expired_value_drops_key():\n    cache = TLRUCache(maxsize=2, ttu=ttu, timer=lambda: 0)\n    cache[1] = 5\n    assert cache[1] == 5\n\n    # ttu(1, 0, t) == t, so the new value is expired the instant it's set.\n    cache[1] = 0\n\n    # The stale old value must not still be served.\n    assert 1 not in cache\n    try:\n        value = cache[1]\n    except KeyError:\n        pass\n    else:\n        assert False, f\"expected KeyError, got stale value {value!r}\"\n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "submit_test",
+          "args": {
+            "rationale": "The bug report states that overwriting an existing TLRUCache key with a value that is already expired at insertion time (ttu(key, value, time) <= time) should cause the key to be dropped, not silently keep serving the previous (stale) value. In the current buggy implementation, TLRUCache.__setitem__ returns early (\"skip expired items\") before removing the old entry from both the underlying Cache s"
+          },
+          "result": "submitted"
+        }
+      ],
+      "rationale": "The bug report states that overwriting an existing TLRUCache key with a value that is already expired at insertion time (ttu(key, value, time) <= time) should cause the key to be dropped, not silently keep serving the previous (stale) value. In the current buggy implementation, TLRUCache.__setitem__ returns early (\"skip expired items\") before removing the old entry from both the underlying Cache store and the internal __items/__order heap bookkeeping when the new value is already expired, so `1 in cache` still returns True and `cache[1]` still returns the old value 5. The test reproduces the exact repro from the report and asserts the correct expected behavior: after `cache[1] = 0` (which expires instantly), `1 not in cache` must hold and `cache[1]` must raise KeyError. Running this test against the current buggy code fails at `assert 1 not in cache`, confirming it exercises the reported bug; on a fix that properly evicts/drops the key when the assigned value is already expired, the test will pass."
+    },
+    {
+      "case_id": "more-itertools-0e6acdf9",
+      "verdict": "REPRO",
+      "buggy_rc": 1,
+      "fixed_rc": 0,
+      "buggy_output": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_______________ test_chunked_negative_n_raises_clear_value_error _______________\n\n    def test_chunked_negative_n_raises_clear_value_error():\n        \"\"\"\n        Regression test for: passing a negative n to chunked() should raise a\n        clear ValueError about the bad argument (similar to sliced()), not an\n        internal error leaking from itertools.islice().\n        \"\"\"\n        with pytest.raises(ValueError) as exc_info:\n            list(mi.chunked('ABCDE', -1))\n    \n        message = str(exc_info.value)\n    \n        # The error should be a clear, user-facing message about the invalid\n        # argument, not an internal implementation detail leaking from\n        # itertools.islice() (e.g. \"Stop argument for islice() must be None or\n        # an integer: 0 <= x <= sys.maxsize.\").\n>       assert 'islice' not in message\nE       AssertionError: assert 'islice' not in 'Stop argume...sys.maxsize.'\nE         \nE         'islice' is contained here:\nE           Stop argument for islice() must be None or an integer: 0 <= x <= sys.maxsize.\nE         ?                   ++++++\n\ntests/test_regressgen_candidate.py:20: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_regressgen_candidate.py::test_chunked_negative_n_raises_clear_value_error\n1 failed in 0.39s\n",
+      "fixed_output": ".                                                                        [100%]\n1 passed in 0.37s\n",
+      "test_source": "import pytest\nimport more_itertools as mi\n\n\ndef test_chunked_negative_n_raises_clear_value_error():\n    \"\"\"\n    Regression test for: passing a negative n to chunked() should raise a\n    clear ValueError about the bad argument (similar to sliced()), not an\n    internal error leaking from itertools.islice().\n    \"\"\"\n    with pytest.raises(ValueError) as exc_info:\n        list(mi.chunked('ABCDE', -1))\n\n    message = str(exc_info.value)\n\n    # The error should be a clear, user-facing message about the invalid\n    # argument, not an internal implementation detail leaking from\n    # itertools.islice() (e.g. \"Stop argument for islice() must be None or\n    # an integer: 0 <= x <= sys.maxsize.\").\n    assert 'islice' not in message\n    # The message should actually mention the offending argument.\n    assert 'n' in message\n",
+      "attempts": 1,
+      "seconds": 54.0,
+      "usd": 0.3567,
+      "trajectory": [
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "def chunked"
+          },
+          "result": "2 hits"
+        },
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "def sliced"
+          },
+          "result": "1 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "more_itertools/more.py",
+            "start": 214,
+            "end": 250
+          },
+          "result": "1472 chars"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "more_itertools/more.py",
+            "start": 1517,
+            "end": 1545
+          },
+          "result": "1160 chars"
+        },
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "^def take"
+          },
+          "result": "2 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "more_itertools/recipes.py",
+            "start": 113,
+            "end": 125
+          },
+          "result": "416 chars"
+        },
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "chunked.*-1|n must be at least 0|negative"
+          },
+          "result": "52 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "more_itertools/recipes.py",
+            "start": 113,
+            "end": 160
+          },
+          "result": "1499 chars"
+        },
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "n must not be negative|n must be non-negative|n must be at least 0|n must be positive"
+          },
+          "result": "2 hits"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nimport pytest\nimport more_itertools as mi\n\n\ndef test_chunked_negative_n_raises_clear_value_error():\n    with pytest.raises(ValueError) as exc_info:\n        list(mi.chunked('ABCDE', -1))\n\n    message = str(exc_info.value)\n    # The error should be a clear, user-facing message about the bad\n    # argument, not an internal implementation detail leaking from\n    # itertools.islice().\n    assert 'islice' not in message\n    assert 'n' in message\n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "submit_test",
+          "args": {
+            "rationale": "The bug report states that chunked() with a negative n leaks an internal ValueError from itertools.islice() (\"Stop argument for islice() must be None or an integer: 0 <= x <= sys.maxsize.\") instead of raising a clear, user-facing ValueError about the invalid n argument, as sliced() does (which raises ValueError('n must be at least 0')). \n\nThe test calls list(mi.chunked('ABCDE', -1)) and asserts th"
+          },
+          "result": "submitted"
+        }
+      ],
+      "rationale": "The bug report states that chunked() with a negative n leaks an internal ValueError from itertools.islice() (\"Stop argument for islice() must be None or an integer: 0 <= x <= sys.maxsize.\") instead of raising a clear, user-facing ValueError about the invalid n argument, as sliced() does (which raises ValueError('n must be at least 0')). \n\nThe test calls list(mi.chunked('ABCDE', -1)) and asserts that a ValueError is raised whose message does not reference the internal 'islice' implementation detail and does mention 'n' (the offending parameter). On the current buggy code, the raised message is the raw islice error containing 'islice', so the 'islice' not in message assertion fails, correctly reproducing the bug. Once fixed to validate n explicitly (mirroring sliced()'s explicit check and message), the raised ValueError will be a clean, descriptive message that does not mention 'islice' and does mention 'n', so the test will pass."
+    },
+    {
+      "case_id": "more-itertools-958990e2",
+      "verdict": "REPRO",
+      "buggy_rc": 1,
+      "fixed_rc": 0,
+      "buggy_output": "F.                                                                       [100%]\n=================================== FAILURES ===================================\n________________________ test_sliced_negative_n_raises _________________________\n\n    def test_sliced_negative_n_raises():\n        \"\"\"sliced() should raise ValueError for a negative size, not silently\n        return a nonsensical result (see bug report).\"\"\"\n>       with pytest.raises(ValueError):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE <class 'ValueError'>\n\ntests/test_regressgen_candidate.py:8: Failed\n=========================== short test summary info ============================\nFAILED tests/test_regressgen_candidate.py::test_sliced_negative_n_raises - Fa...\n1 failed, 1 passed in 0.37s\n",
+      "fixed_output": "..                                                                       [100%]\n2 passed in 0.38s\n",
+      "test_source": "import pytest\nimport more_itertools as mi\n\n\ndef test_sliced_negative_n_raises():\n    \"\"\"sliced() should raise ValueError for a negative size, not silently\n    return a nonsensical result (see bug report).\"\"\"\n    with pytest.raises(ValueError):\n        list(mi.sliced('ABCDEFG', -1))\n\n\ndef test_sliced_negative_n_raises_strict():\n    \"\"\"Same as above but with strict=True.\"\"\"\n    with pytest.raises(ValueError):\n        list(mi.sliced('ABCDEFG', -1, strict=True))\n",
+      "attempts": 1,
+      "seconds": 21.4,
+      "usd": 0.09376,
+      "trajectory": [
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "def sliced"
+          },
+          "result": "1 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "more_itertools/more.py",
+            "start": 1517,
+            "end": 1560
+          },
+          "result": "1748 chars"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nimport pytest\nimport more_itertools as mi\n\n\ndef test_sliced_negative_n_raises():\n    with pytest.raises(ValueError):\n        list(mi.sliced('ABCDEFG', -1))\n\n\ndef test_sliced_negative_n_raises_strict():\n    with pytest.raises(ValueError):\n        list(mi.sliced('ABCDEFG', -1, strict=True))\n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "submit_test",
+          "args": {
+            "rationale": "The bug report states that more_itertools.sliced() should raise ValueError when given a negative size, since negative slice sizes are nonsensical, but it currently silently proceeds and returns wrong output. I located sliced() in more_itertools/more.py (line 1517) and confirmed it has no guard on n's sign - it just builds `seq[i:i+n]` via takewhile(len, ...), which for negative n produces unexpect"
+          },
+          "result": "submitted"
+        }
+      ],
+      "rationale": "The bug report states that more_itertools.sliced() should raise ValueError when given a negative size, since negative slice sizes are nonsensical, but it currently silently proceeds and returns wrong output. I located sliced() in more_itertools/more.py (line 1517) and confirmed it has no guard on n's sign - it just builds `seq[i:i+n]` via takewhile(len, ...), which for negative n produces unexpected slices instead of raising.\n\nI wrote two tests asserting the correct/expected behavior (raising ValueError) for both the default and strict=True cases, matching the exact reproduction from the bug report (`mi.sliced(seq, -1)` and `mi.sliced(seq, -1, strict=True)`).\n\nI verified with run_test that on the current buggy code, the non-strict case fails (DID NOT RAISE ValueError - confirming the silent wrong-behavior bug), while the strict case incidentally already raises today. Both assertions encode the correct expected behavior described in the report, so together the file fails on the buggy code and will pass once the fix adds a proper negative-size check (a real fix should raise before yielding anything, in both modes)."
+    },
+    {
+      "case_id": "more-itertools-d992be0d",
+      "verdict": "REPRO",
+      "buggy_rc": 1,
+      "fixed_rc": 0,
+      "buggy_output": "FF                                                                       [100%]\n=================================== FAILURES ===================================\n_____________________ test_running_min_stable_type_on_ties _____________________\n\n    def test_running_min_stable_type_on_ties():\n        # running_min should pick the same element (and thus the same type) as\n        # the builtin `min` would for equal values, since `min` is stable and\n        # returns the first argument when values compare equal.\n        data = [0, 0.0, Fraction(0)]\n        result_types = [type(x) for x in mi.running_min(data, maxlen=2)]\n        expected_types = [\n            type(min(data[0:1])),\n            type(min(data[0:2])),\n            type(min(data[1:3])),\n        ]\n>       assert result_types == expected_types\nE       AssertionError: assert [<class 'int'...ns.Fraction'>] == [<class 'int'...lass 'float'>]\nE         \nE         At index 1 diff: <class 'float'> != <class 'int'>\nE         Use -v to get more diff\n\ntests/test_regressgen_candidate.py:17: AssertionError\n_____________________ test_running_max_stable_type_on_ties _____________________\n\n    def test_running_max_stable_type_on_ties():\n        # Same stability expectation for running_max relative to builtin `max`.\n        data = [0, 0.0, Fraction(0)]\n        result_types = [type(x) for x in mi.running_max(data, maxlen=2)]\n        expected_types = [\n            type(max(data[0:1])),\n            type(max(data[0:2])),\n            type(max(data[1:3])),\n        ]\n>       assert result_types == expected_types\nE       AssertionError: assert [<class 'int'...ns.Fraction'>] == [<class 'int'...lass 'float'>]\nE         \nE         At index 1 diff: <class 'float'> != <class 'int'>\nE         Use -v to get more diff\n\ntests/test_regressgen_candidate.py:31: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_regressgen_candidate.py::test_running_min_stable_type_on_ties\nFAILED tests/test_regressgen_candidate.py::test_running_max_stable_type_on_ties\n2 failed in 0.41s\n",
+      "fixed_output": "..                                                                       [100%]\n2 passed in 0.40s\n",
+      "test_source": "from fractions import Fraction\n\nimport more_itertools as mi\n\n\ndef test_running_min_stable_type_on_ties():\n    # running_min should pick the same element (and thus the same type) as\n    # the builtin `min` would for equal values, since `min` is stable and\n    # returns the first argument when values compare equal.\n    data = [0, 0.0, Fraction(0)]\n    result_types = [type(x) for x in mi.running_min(data, maxlen=2)]\n    expected_types = [\n        type(min(data[0:1])),\n        type(min(data[0:2])),\n        type(min(data[1:3])),\n    ]\n    assert result_types == expected_types\n    # Sanity check the concretely expected types from the bug report.\n    assert expected_types == [int, int, float]\n\n\ndef test_running_max_stable_type_on_ties():\n    # Same stability expectation for running_max relative to builtin `max`.\n    data = [0, 0.0, Fraction(0)]\n    result_types = [type(x) for x in mi.running_max(data, maxlen=2)]\n    expected_types = [\n        type(max(data[0:1])),\n        type(max(data[0:2])),\n        type(max(data[1:3])),\n    ]\n    assert result_types == expected_types\n    assert expected_types == [int, int, float]\n",
+      "attempts": 1,
+      "seconds": 67.3,
+      "usd": 0.44205,
+      "trajectory": [
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "def running_(min|max)"
+          },
+          "result": "2 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "more_itertools/recipes.py",
+            "start": 1470,
+            "end": 1570
+          },
+          "result": "3860 chars"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "from fractions import Fraction\n\nimport more_itertools as mi\n\n\ndef test_running_min_stable_type_on_ties():\n    data = [0, 0.0, Fraction(0)]\n    result_types = [type(x) for x in mi.running_min(data, maxlen=2)]\n    expected_types = [\n        type(min(data[0:1])),\n        type(min(data[0:2])),\n        type(min(data[1:3])),\n    ]\n    assert result_types == expected_types\n\n\ndef test_running_max_stable_type_on_ties():\n    data = [0, 0.0, Fraction(0)]\n    result_types = [type(x) for x in mi.running_max(data, maxlen=2)]\n    expected_types = [\n        type(max(data[0:1])),\n        type(max(data[0:2])),\n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "submit_test",
+          "args": {
+            "rationale": "The bug report says running_min/running_max don't preserve stability (picking the first of equal-valued elements) the way Python's builtin min/max do, so their output types diverge from what min/max would return on the same windows. I derived the expected types directly from calling the builtin min/max on the corresponding windows (matching the report's own methodology), rather than hardcoding the"
+          },
+          "result": "submitted"
+        }
+      ],
+      "rationale": "The bug report says running_min/running_max don't preserve stability (picking the first of equal-valued elements) the way Python's builtin min/max do, so their output types diverge from what min/max would return on the same windows. I derived the expected types directly from calling the builtin min/max on the corresponding windows (matching the report's own methodology), rather than hardcoding the currently-observed (buggy) types. Running this against the buggy code shows the mismatch exactly at the tied index (index 1: buggy code yields float where the stable/expected type is int), confirming the test fails on current code for the right reason. On a fix that restores stability (keeping the earlier equal element in the sliding-window monotonic deque instead of evicting it), the windows' front element would match plain min/max's stable choice and the test would pass."
+    },
+    {
+      "case_id": "packaging-524b701c",
+      "verdict": "REPRO",
+      "buggy_rc": 1,
+      "fixed_rc": 0,
+      "buggy_output": " _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <[AttributeError(\"'Version' object has no attribute '_version'\") raised in repr()] Version object at 0x10b42f560>\nversion = '1.x'\n\n    def __init__(self, version: str) -> None:\n        \"\"\"Initialize a Version object.\n    \n        :param version:\n            The string representation of a version which will be parsed and normalized\n            before use.\n        :raises InvalidVersion:\n            If the ``version`` does not conform to PEP 440 in any way then this\n            exception will be raised.\n        \"\"\"\n    \n        # Validate the version and parse it into pieces\n        match = self._regex.search(version)\n        if not match:\n>           raise InvalidVersion(f\"Invalid version: '{version}'\")\nE           packaging.version.InvalidVersion: Invalid version: '1.x'\n\n<sandbox>:200: InvalidVersion\n____ test_parse_sdist_filename_bogus_version_raises_invalid_sdist_filename _____\n\n    def test_parse_sdist_filename_bogus_version_raises_invalid_sdist_filename():\n        # An sdist filename with a bogus (non-PEP-440) version string should\n        # raise the documented InvalidSdistFilename exception, not let\n        # packaging.version.InvalidVersion escape.\n        with pytest.raises(InvalidSdistFilename):\n>           parse_sdist_filename(\"foo-1.x.tar.gz\")\n\ntests/test_regressgen_candidate.py:23: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n<sandbox>:157: in parse_sdist_filename\n    version = Version(version_part)\n              ^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <[AttributeError(\"'Version' object has no attribute '_version'\") raised in repr()] Version object at 0x10b440a10>\nversion = '1.x'\n\n    def __init__(self, version: str) -> None:\n        \"\"\"Initialize a Version object.\n    \n        :param version:\n            The string representation of a version which will be parsed and normalized\n            before use.\n        :raises InvalidVersion:\n            If the ``version`` does not conform to PEP 440 in any way then this\n            exception will be raised.\n        \"\"\"\n    \n        # Validate the version and parse it into pieces\n        match = self._regex.search(version)\n        if not match:\n>           raise InvalidVersion(f\"Invalid version: '{version}'\")\nE           packaging.version.InvalidVersion: Invalid version: '1.x'\n\n<sandbox>:200: InvalidVersion\n=========================== short test summary info ============================\nFAILED tests/test_regressgen_candidate.py::test_parse_wheel_filename_bogus_version_raises_invalid_wheel_filename\nFAILED tests/test_regressgen_candidate.py::test_parse_sdist_filename_bogus_version_raises_invalid_sdist_filename\n2 failed in 0.39s\n",
+      "fixed_output": "..                                                                       [100%]\n2 passed in 0.38s\n",
+      "test_source": "import pytest\nfrom packaging.utils import (\n    parse_wheel_filename,\n    parse_sdist_filename,\n    InvalidWheelFilename,\n    InvalidSdistFilename,\n)\n\n\ndef test_parse_wheel_filename_bogus_version_raises_invalid_wheel_filename():\n    # A wheel filename with a bogus (non-PEP-440) version string should\n    # raise the documented InvalidWheelFilename exception, not let\n    # packaging.version.InvalidVersion escape.\n    with pytest.raises(InvalidWheelFilename):\n        parse_wheel_filename(\"foobar-1.x-py3-none-any.whl\")\n\n\ndef test_parse_sdist_filename_bogus_version_raises_invalid_sdist_filename():\n    # An sdist filename with a bogus (non-PEP-440) version string should\n    # raise the documented InvalidSdistFilename exception, not let\n    # packaging.version.InvalidVersion escape.\n    with pytest.raises(InvalidSdistFilename):\n        parse_sdist_filename(\"foo-1.x.tar.gz\")\n",
+      "attempts": 1,
+      "seconds": 19.0,
+      "usd": 0.09855,
+      "trajectory": [
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "src/packaging/utils.py",
+            "start": 0,
+            "end": 0
+          },
+          "result": "6037 chars"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nimport pytest\nfrom packaging.utils import (\n    parse_wheel_filename,\n    parse_sdist_filename,\n    InvalidWheelFilename,\n    InvalidSdistFilename,\n)\n\n\ndef test_parse_wheel_filename_bogus_version_raises_invalid_wheel_filename():\n    with pytest.raises(InvalidWheelFilename):\n        parse_wheel_filename(\"foobar-1.x-py3-none-any.whl\")\n\n\ndef test_parse_sdist_filename_bogus_version_raises_invalid_sdist_filename():\n    with pytest.raises(InvalidSdistFilename):\n        parse_sdist_filename(\"foo-1.x.tar.gz\")\n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "submit_test",
+          "args": {
+            "rationale": "The bug report states that parse_wheel_filename and parse_sdist_filename should raise their documented exceptions (InvalidWheelFilename / InvalidSdistFilename) when given a filename containing a malformed version string, but instead the current implementation lets packaging.version.InvalidVersion escape unhandled since it calls Version(...) directly without catching InvalidVersion. This test calls"
+          },
+          "result": "submitted"
+        }
+      ],
+      "rationale": "The bug report states that parse_wheel_filename and parse_sdist_filename should raise their documented exceptions (InvalidWheelFilename / InvalidSdistFilename) when given a filename containing a malformed version string, but instead the current implementation lets packaging.version.InvalidVersion escape unhandled since it calls Version(...) directly without catching InvalidVersion. This test calls both functions with filenames that have valid structure/extension but an invalid PEP 440 version segment (\"1.x\"), and asserts the documented exception type is raised. On the buggy code, this fails because InvalidVersion (not InvalidWheelFilename/InvalidSdistFilename) propagates out, confirmed by running the test. On a fixed implementation that wraps the Version(...) call and re-raises the appropriate documented exception, the test will pass."
+    },
+    {
+      "case_id": "packaging-a716c52b",
+      "verdict": "REPRO",
+      "buggy_rc": 1,
+      "fixed_rc": 0,
+      "buggy_output": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________________ test_dynamic_error_names_specific_field ____________________\n\n    def test_dynamic_error_names_specific_field():\n        \"\"\"\n        When `dynamic` contains a disallowed field (name/version/metadata-version)\n        alongside other valid dynamic fields, the raised InvalidMetadata message\n        should name the specific offending field, not dump the entire list.\n        \"\"\"\n        meta = metadata.Metadata.from_raw(\n            {\n                \"metadata_version\": \"2.1\",\n                \"name\": \"foo\",\n                \"version\": \"1.0\",\n                \"dynamic\": [\"summary\", \"name\"],\n            },\n            validate=False,\n        )\n    \n        with pytest.raises(metadata.InvalidMetadata) as exc_info:\n            meta.dynamic\n    \n        message = str(exc_info.value)\n    \n        # The message should identify the specific bad field...\n        assert \"'name'\" in message\n        # ...and not just dump the whole raw list back at the user.\n>       assert \"['summary', 'name']\" not in message\nE       assert \"['summary', 'name']\" not in \"['summary',...ynamic field\"\nE         \nE         \"['summary', 'name']\" is contained here:\nE           ['summary', 'name'] is not allowed as a dynamic field\nE         ? +++++++++++++++++++\n\ntests/test_regressgen_candidate.py:30: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_regressgen_candidate.py::test_dynamic_error_names_specific_field\n1 failed in 0.41s\n",
+      "fixed_output": ".                                                                        [100%]\n1 passed in 0.39s\n",
+      "test_source": "import pytest\n\nfrom packaging import metadata\n\n\ndef test_dynamic_error_names_specific_field():\n    \"\"\"\n    When `dynamic` contains a disallowed field (name/version/metadata-version)\n    alongside other valid dynamic fields, the raised InvalidMetadata message\n    should name the specific offending field, not dump the entire list.\n    \"\"\"\n    meta = metadata.Metadata.from_raw(\n        {\n            \"metadata_version\": \"2.1\",\n            \"name\": \"foo\",\n            \"version\": \"1.0\",\n            \"dynamic\": [\"summary\", \"name\"],\n        },\n        validate=False,\n    )\n\n    with pytest.raises(metadata.InvalidMetadata) as exc_info:\n        meta.dynamic\n\n    message = str(exc_info.value)\n\n    # The message should identify the specific bad field...\n    assert \"'name'\" in message\n    # ...and not just dump the whole raw list back at the user.\n    assert \"['summary', 'name']\" not in message\n",
+      "attempts": 1,
+      "seconds": 21.7,
+      "usd": 0.09746,
+      "trajectory": [
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "dynamic field"
+          },
+          "result": "2 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "src/packaging/metadata.py",
+            "start": 570,
+            "end": 600
+          },
+          "result": "1586 chars"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nimport pytest\nfrom packaging import metadata\n\n\ndef test_dynamic_error_names_specific_field():\n    meta = metadata.Metadata.from_raw(\n        {\"metadata_version\": \"2.1\", \"name\": \"foo\", \"version\": \"1.0\", \"dynamic\": [\"summary\", \"name\"]},\n        validate=False,\n    )\n    with pytest.raises(metadata.InvalidMetadata) as exc_info:\n        meta.dynamic\n\n    message = str(exc_info.value)\n    assert \"'name'\" in message\n    assert \"['summary', 'name']\" not in message\n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "submit_test",
+          "args": {
+            "rationale": "The bug report states that when `dynamic` includes a disallowed field (e.g. \"name\"), the InvalidMetadata error message dumps the entire raw list instead of naming the specific offending field. In src/packaging/metadata.py, `_process_dynamic` uses `f\"{value!r} is not allowed as a dynamic field\"` (the whole input list) instead of `f\"{dynamic_field!r} is not allowed as a dynamic field\"` (the single b"
+          },
+          "result": "submitted"
+        }
+      ],
+      "rationale": "The bug report states that when `dynamic` includes a disallowed field (e.g. \"name\"), the InvalidMetadata error message dumps the entire raw list instead of naming the specific offending field. In src/packaging/metadata.py, `_process_dynamic` uses `f\"{value!r} is not allowed as a dynamic field\"` (the whole input list) instead of `f\"{dynamic_field!r} is not allowed as a dynamic field\"` (the single bad entry). This test constructs a `dynamic` list with a valid field (\"summary\") plus the disallowed field (\"name\"), triggers the error via `.dynamic`, and asserts the message contains the specific field name 'name' and does NOT contain the full list representation. On the current buggy code this fails because the message is \"['summary', 'name'] is not allowed as a dynamic field\" (contains the full list, satisfying the negative assertion's failure). On fixed code, the message would be \"'name' is not allowed as a dynamic field\", satisfying both assertions."
+    },
+    {
+      "case_id": "packaging-c52d2b30",
+      "verdict": "REPRO",
+      "buggy_rc": 1,
+      "fixed_rc": 0,
+      "buggy_output": "F.                                                                       [100%]\n=================================== FAILURES ===================================\n___ test_wildcard_equal_matches_when_epochs_agree_with_extra_trailing_zeros ____\n\n    def test_wildcard_equal_matches_when_epochs_agree_with_extra_trailing_zeros():\n        # Regression test for: version matching with `==` and a wildcard breaks\n        # when the version string has more \"parts\" than usual combined with an\n        # epoch. The epoch token (e.g. \"2!1\") is not a pure digit string, so the\n        # release-segment padding logic used to bail out and fail to pad the\n        # shorter side, causing legitimate same-epoch prefix matches to be\n        # rejected once padding was required.\n        #\n        # These all compare a prospective version against a `.*` specifier with\n        # extra trailing \".0\" segments and a matching epoch: they must match.\n>       assert SpecifierSet(\"==2!1.0.0.0.*\").contains(\"2!1.0.0\") is True\nE       AssertionError: assert False is True\nE        +  where False = contains('2!1.0.0')\nE        +    where contains = <SpecifierSet('==2!1.0.0.0.*')>.contains\nE        +      where <SpecifierSet('==2!1.0.0.0.*')> = SpecifierSet('==2!1.0.0.0.*')\n\ntests/test_regressgen_candidate.py:15: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_regressgen_candidate.py::test_wildcard_equal_matches_when_epochs_agree_with_extra_trailing_zeros\n1 failed, 1 passed in 0.09s\n",
+      "fixed_output": "..                                                                       [100%]\n2 passed in 0.08s\n",
+      "test_source": "\nfrom packaging.specifiers import SpecifierSet\n\n\ndef test_wildcard_equal_matches_when_epochs_agree_with_extra_trailing_zeros():\n    # Regression test for: version matching with `==` and a wildcard breaks\n    # when the version string has more \"parts\" than usual combined with an\n    # epoch. The epoch token (e.g. \"2!1\") is not a pure digit string, so the\n    # release-segment padding logic used to bail out and fail to pad the\n    # shorter side, causing legitimate same-epoch prefix matches to be\n    # rejected once padding was required.\n    #\n    # These all compare a prospective version against a `.*` specifier with\n    # extra trailing \".0\" segments and a matching epoch: they must match.\n    assert SpecifierSet(\"==2!1.0.0.0.*\").contains(\"2!1.0.0\") is True\n    assert SpecifierSet(\"==1!1.0.0.*\").contains(\"1!1.0\") is True\n    assert SpecifierSet(\"==1!1.0.0.0.*\").contains(\"1!1.0.0\") is True\n\n\ndef test_wildcard_equal_excludes_epoch_mismatch():\n    # Epoch mismatches must always be excluded from a wildcard `==` match,\n    # regardless of how many segments the specifier/version have.\n    assert SpecifierSet(\"==1.0.0.*\").contains(\"2!1.0\") is False\n    assert SpecifierSet(\"==2!1.0.0.*\").contains(\"1.0\") is False\n",
+      "attempts": 1,
+      "seconds": 97.0,
+      "usd": 0.41977,
+      "trajectory": [
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "def _compare_equal"
+          },
+          "result": "1 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "src/packaging/specifiers.py",
+            "start": 397,
+            "end": 450
+          },
+          "result": "3008 chars"
+        },
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "def _version_split|def _pad_version"
+          },
+          "result": "2 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "src/packaging/specifiers.py",
+            "start": 646,
+            "end": 700
+          },
+          "result": "2419 chars"
+        },
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "def canonicalize_version"
+          },
+          "result": "1 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "src/packaging/utils.py",
+            "start": 55,
+            "end": 110
+          },
+          "result": "1979 chars"
+        },
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "_prefix_regex"
+          },
+          "result": "2 hits"
+        },
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "def public"
+          },
+          "result": "1 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "src/packaging/version.py",
+            "start": 335,
+            "end": 360
+          },
+          "result": "881 chars"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nfrom packaging.specifiers import SpecifierSet\n\ndef test_debug():\n    print(SpecifierSet(\"==1.0.0.*\").contains(\"2!1.0\"))\n    print(SpecifierSet(\"==2!1.0.0.*\").contains(\"1.0\"))\n    print(SpecifierSet(\"==2!1.0.0.0.*\").contains(\"2!1.0.0\"))\n    assert False\n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nfrom packaging.specifiers import SpecifierSet\nfrom packaging.version import Version\n\ndef test_debug():\n    s = SpecifierSet(\"==1.0.0.*\")\n    print(\"contains public default:\", s.contains(\"2!1.0\"))\n    print(\"contains with prereleases True:\", s.contains(\"2!1.0\", prereleases=True))\n    v = Version(\"2!1.0\")\n    print(\"version:\", v, v.public, v.epoch, v.release)\n    print(\"item in s:\", v in s)\n    assert False\n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nfrom packaging.specifiers import SpecifierSet\n\ndef test_debug():\n    print(\"case3:\", SpecifierSet(\"==2!1.0.0.0.*\").contains(\"2!1.0.0\"))\n    print(\"case3b:\", SpecifierSet(\"==1!1.0.0.*\").contains(\"1!1.0\"))\n    print(\"case3c:\", SpecifierSet(\"==1!1.0.*\").contains(\"1!1.0.0\"))\n    print(\"case3d:\", SpecifierSet(\"==1!1.0.0.0.*\").contains(\"1!1.0.0\"))\n    assert False\n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nfrom packaging.specifiers import SpecifierSet\n\n\ndef test_wildcard_equal_matches_when_epochs_agree_with_extra_trailing_zeros():\n    # Same epoch, spec has more trailing zero segments than prospective:\n    # padding must still work correctly with an epoch present.\n    assert SpecifierSet(\"==2!1.0.0.0.*\").contains(\"2!1.0.0\") is True\n    assert SpecifierSet(\"==1!1.0.0.*\").contains(\"1!1.0\") is True\n    assert SpecifierSet(\"==1!1.0.0.0.*\").contains(\"1!1.0.0\") is True\n\n\ndef test_wildcard_equal_excludes_epoch_mismatch():\n    assert SpecifierSet(\"==1.0.0.*\").contains(\"2!1.0\") is False\n    assert Speci"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "submit_test",
+          "args": {
+            "rationale": "The bug report describes broken == wildcard matching when a version has an epoch combined with more segments than the usual X.Y shape (extra trailing zero segments requiring padding). Tracing _compare_equal/_pad_version in specifiers.py shows that when an epoch is present, the first release token (e.g. \"2!1\") fails the isdigit() check used by _pad_version's takewhile, so the release-segment paddin"
+          },
+          "result": "submitted"
+        }
+      ],
+      "rationale": "The bug report describes broken == wildcard matching when a version has an epoch combined with more segments than the usual X.Y shape (extra trailing zero segments requiring padding). Tracing _compare_equal/_pad_version in specifiers.py shows that when an epoch is present, the first release token (e.g. \"2!1\") fails the isdigit() check used by _pad_version's takewhile, so the release-segment padding is skipped entirely. This makes same-epoch prefix matches that require padding (e.g. \"==2!1.0.0.0.*\".contains(\"2!1.0.0\")) incorrectly return False instead of the expected True. I verified via run_test that these same-epoch/padding-required cases return False on the current buggy code (should be True), while the epoch-mismatch-exclusion cases from the report already return False correctly on this checkout (so they pass on both buggy and fixed code, serving as a non-regressing sanity check). The submitted test pins the correct expected behavior for the padding-with-epoch case, which fails on the buggy implementation and should pass once _pad_version/_compare_equal correctly handle epoch-bearing tokens."
+    },
+    {
+      "case_id": "semver-4b03f867",
+      "verdict": "REPRO",
+      "buggy_rc": 1,
+      "fixed_rc": 0,
+      "buggy_output": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_____________________ test_replace_preserves_subclass_type _____________________\n\n    def test_replace_preserves_subclass_type():\n        \"\"\"Version.replace() should return an instance of the calling subclass,\n        not a plain Version, so subclass behaviour (like __str__) is preserved.\"\"\"\n        version = SemVerWithVPrefix.parse(\"v1.1.0\")\n        dev_version = version.replace(prerelease=\"dev.0\")\n    \n>       assert isinstance(dev_version, SemVerWithVPrefix)\nE       AssertionError: assert False\nE        +  where False = isinstance(Version(major=1, minor=1, patch=0, prerelease='dev.0', build=None), SemVerWithVPrefix)\n\ntests/test_regressgen_candidate.py:24: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_regressgen_candidate.py::test_replace_preserves_subclass_type\n1 failed in 0.40s\n",
+      "fixed_output": ".                                                                        [100%]\n1 passed in 0.41s\n",
+      "test_source": "\nfrom semver.version import Version\n\n\nclass SemVerWithVPrefix(Version):\n    \"\"\"Subclass matching the docs' \"Creating Subclasses from Version\" example.\"\"\"\n\n    @classmethod\n    def parse(cls, version):\n        if version[0] not in (\"v\", \"V\"):\n            raise ValueError(\"must start with v or V\")\n        return super().parse(version[1:], optional_minor_and_patch=True)\n\n    def __str__(self):\n        return \"v\" + super().__str__()\n\n\ndef test_replace_preserves_subclass_type():\n    \"\"\"Version.replace() should return an instance of the calling subclass,\n    not a plain Version, so subclass behaviour (like __str__) is preserved.\"\"\"\n    version = SemVerWithVPrefix.parse(\"v1.1.0\")\n    dev_version = version.replace(prerelease=\"dev.0\")\n\n    assert isinstance(dev_version, SemVerWithVPrefix)\n    assert str(dev_version) == \"v1.1.0-dev.0\"\n",
+      "attempts": 1,
+      "seconds": 20.6,
+      "usd": 0.09719,
+      "trajectory": [
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "def replace"
+          },
+          "result": "2 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "src/semver/version.py",
+            "start": 640,
+            "end": 685
+          },
+          "result": "2064 chars"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nfrom semver.version import Version\n\n\nclass SemVerWithVPrefix(Version):\n    @classmethod\n    def parse(cls, version):\n        if version[0] not in (\"v\", \"V\"):\n            raise ValueError(\"must start with v or V\")\n        return super().parse(version[1:], optional_minor_and_patch=True)\n\n    def __str__(self):\n        return \"v\" + super().__str__()\n\n\ndef test_replace_preserves_subclass():\n    version = SemVerWithVPrefix.parse(\"v1.1.0\")\n    dev_version = version.replace(prerelease=\"dev.0\")\n    assert isinstance(dev_version, SemVerWithVPrefix)\n    assert str(dev_version) == \"v1.1.0-dev.0\"\n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "submit_test",
+          "args": {
+            "rationale": "The bug report states that Version.replace() falls back to constructing a plain Version instead of preserving the subclass type, causing subclass-specific behaviour (e.g. a custom __str__ that adds a \"v\" prefix) to be lost. The source at src/semver/version.py:673 confirms replace() hardcodes `Version(**version)` instead of using `type(self)` / `self.__class__`. This test defines the exact subclass"
+          },
+          "result": "submitted"
+        }
+      ],
+      "rationale": "The bug report states that Version.replace() falls back to constructing a plain Version instead of preserving the subclass type, causing subclass-specific behaviour (e.g. a custom __str__ that adds a \"v\" prefix) to be lost. The source at src/semver/version.py:673 confirms replace() hardcodes `Version(**version)` instead of using `type(self)` / `self.__class__`. This test defines the exact subclass pattern from the bug report, calls replace(), and asserts both that the returned object is still an instance of the subclass and that its string form retains the \"v\" prefix (the expected/correct behaviour per the report). It fails on the current buggy code (returns a bare Version, so isinstance check fails) and will pass once replace() is fixed to construct via the subclass's own type."
+    },
+    {
+      "case_id": "semver-bc41390f",
+      "verdict": "WRONG_EXPECTATION",
+      "buggy_rc": 1,
+      "fixed_rc": 1,
+      "buggy_output": "tance(other, (tuple, list)):\n            other = cls(*other)\n        elif not isinstance(other, cls):\n>           raise TypeError(\n                f\"Expected str, bytes, dict, tuple, list, or {cls.__name__} instance, \"\n                f\"but got {type(other)}\"\n            )\nE           TypeError: Expected str, bytes, dict, tuple, list, or MyVersion instance, but got <class 'semver.version.Version'>\n\nsrc/semver/version.py:400: TypeError\n__________________________ test_eq_subclass_symmetric __________________________\n\n    def test_eq_subclass_symmetric():\n        \"\"\"Regression test: equality between a Version and a subclass instance\n        representing the same version must be symmetric.\n    \n        Previously ``a == b`` (subclass on the left) was False / raised, while\n        ``b == a`` (base class on the left) was True, breaking symmetry of ==.\n        \"\"\"\n    \n        class MyVersion(Version):\n            pass\n    \n        a = MyVersion.parse(\"1.0.0\")\n        b = Version.parse(\"1.0.0\")\n    \n>       assert b == a\n               ^^^^^^\n\ntests/test_regressgen_candidate.py:43: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/semver/version.py:52: in wrapper\n    return operator(self, other)\n           ^^^^^^^^^^^^^^^^^^^^^\nsrc/semver/version.py:467: in __eq__\n    return self.compare(other) == 0\n           ^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = MyVersion(major=1, minor=0, patch=0, prerelease=None, build=None)\nother = Version(major=1, minor=0, patch=0, prerelease=None, build=None)\n\n    def compare(self, other: Comparable) -> int:\n        \"\"\"\n        Compare self with other.\n    \n        :param other: the second version\n        :return: The return value is negative if ver1 < ver2,\n             zero if ver1 == ver2 and strictly positive if ver1 > ver2\n    \n        >>> Version.parse(\"1.0.0\").compare(\"2.0.0\")\n        -1\n        >>> Version.parse(\"2.0.0\").compare(\"1.0.0\")\n        1\n        >>> Version.parse(\"2.0.0\").compare(\"2.0.0\")\n        0\n        \"\"\"\n        cls = type(self)\n        if isinstance(other, String.__args__):  # type: ignore\n            other = cls.parse(other)\n        elif isinstance(other, dict):\n            other = cls(**other)\n        elif isinstance(other, (tuple, list)):\n            other = cls(*other)\n        elif not isinstance(other, cls):\n>           raise TypeError(\n                f\"Expected str, bytes, dict, tuple, list, or {cls.__name__} instance, \"\n                f\"but got {type(other)}\"\n            )\nE           TypeError: Expected str, bytes, dict, tuple, list, or MyVersion instance, but got <class 'semver.version.Version'>\n\nsrc/semver/version.py:400: TypeError\n=========================== short test summary info ============================\nFAILED tests/test_regressgen_candidate.py::test_compare_subclass_symmetric - ...\nFAILED tests/test_regressgen_candidate.py::test_eq_subclass_symmetric - TypeE...\n2 failed in 0.42s\n",
+      "fixed_output": "F.                                                                       [100%]\n=================================== FAILURES ===================================\n_______________________ test_compare_subclass_symmetric ________________________\n\n    def test_compare_subclass_symmetric():\n        \"\"\"Regression test: Version.compare() must be symmetric when comparing\n        across a Version instance and an instance of a Version subclass.\n    \n        Previously, ``sub_instance.compare(base_instance)`` raised a TypeError\n        (because compare() checked isinstance(other, type(self)) instead of\n        isinstance(other, Version)), while ``base_instance.compare(sub_instance)``\n        worked fine and returned 0. Both directions should agree.\n        \"\"\"\n    \n        class MyVersion(Version):\n            pass\n    \n        a = MyVersion.parse(\"1.0.0\")\n        b = Version.parse(\"1.0.0\")\n    \n        # This direction already worked before the fix.\n        assert b.compare(a) == 0\n    \n        # This direction used to raise TypeError; it should now also return 0,\n        # matching the other direction.\n>       assert a.compare(b) == 0\n               ^^^^^^^^^^^^\n\ntests/test_regressgen_candidate.py:26: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = MyVersion(major=1, minor=0, patch=0, prerelease=None, build=None)\nother = Version(major=1, minor=0, patch=0, prerelease=None, build=None)\n\n    def compare(self, other: Comparable) -> int:\n        \"\"\"\n        Compare self with other.\n    \n        :param other: the second version\n        :return: The return value is negative if ver1 < ver2,\n             zero if ver1 == ver2 and strictly positive if ver1 > ver2\n    \n        >>> Version.parse(\"1.0.0\").compare(\"2.0.0\")\n        -1\n        >>> Version.parse(\"2.0.0\").compare(\"1.0.0\")\n        1\n        >>> Version.parse(\"2.0.0\").compare(\"2.0.0\")\n        0\n        \"\"\"\n        cls = type(self)\n        if isinstance(other, String.__args__):  # type: ignore\n            other = cls.parse(other)\n        elif isinstance(other, dict):\n            other = cls(**other)\n        elif isinstance(other, (tuple, list)):\n            other = cls(*other)\n        elif not isinstance(other, cls):\n>           raise TypeError(\n                f\"Expected str, bytes, dict, tuple, list, or {cls.__name__} instance, \"\n                f\"but got {type(other)}\"\n            )\nE           TypeError: Expected str, bytes, dict, tuple, list, or MyVersion instance, but got <class 'semver.version.Version'>\n\nsrc/semver/version.py:400: TypeError\n=========================== short test summary info ============================\nFAILED tests/test_regressgen_candidate.py::test_compare_subclass_symmetric - ...\n1 failed, 1 passed in 0.40s\n",
+      "test_source": "\nfrom semver import Version\n\n\ndef test_compare_subclass_symmetric():\n    \"\"\"Regression test: Version.compare() must be symmetric when comparing\n    across a Version instance and an instance of a Version subclass.\n\n    Previously, ``sub_instance.compare(base_instance)`` raised a TypeError\n    (because compare() checked isinstance(other, type(self)) instead of\n    isinstance(other, Version)), while ``base_instance.compare(sub_instance)``\n    worked fine and returned 0. Both directions should agree.\n    \"\"\"\n\n    class MyVersion(Version):\n        pass\n\n    a = MyVersion.parse(\"1.0.0\")\n    b = Version.parse(\"1.0.0\")\n\n    # This direction already worked before the fix.\n    assert b.compare(a) == 0\n\n    # This direction used to raise TypeError; it should now also return 0,\n    # matching the other direction.\n    assert a.compare(b) == 0\n\n\ndef test_eq_subclass_symmetric():\n    \"\"\"Regression test: equality between a Version and a subclass instance\n    representing the same version must be symmetric.\n\n    Previously ``a == b`` (subclass on the left) was False / raised, while\n    ``b == a`` (base class on the left) was True, breaking symmetry of ==.\n    \"\"\"\n\n    class MyVersion(Version):\n        pass\n\n    a = MyVersion.parse(\"1.0.0\")\n    b = Version.parse(\"1.0.0\")\n\n    assert b == a\n    assert a == b\n    assert (a == b) == (b == a)\n",
+      "attempts": 1,
+      "seconds": 37.3,
+      "usd": 0.17419,
+      "trajectory": [
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "def compare|def __eq__|_comparator|isinstance.*Version"
+          },
+          "result": "12 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "src/semver/version.py",
+            "start": 1,
+            "end": 60
+          },
+          "result": "1779 chars"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "src/semver/version.py",
+            "start": 370,
+            "end": 430
+          },
+          "result": "2355 chars"
+        },
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "class .*\\(Version\\)|subclass"
+          },
+          "result": "12 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "tests/test_subclass.py",
+            "start": 0,
+            "end": 60
+          },
+          "result": "2114 chars"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nfrom semver import Version\n\n\ndef test_compare_subclass_symmetric():\n    class MyVersion(Version):\n        pass\n\n    a = MyVersion.parse(\"1.0.0\")\n    b = Version.parse(\"1.0.0\")\n\n    # Both directions should agree: comparing a Version with an instance of a\n    # subclass representing the same version should return 0 regardless of\n    # which side is the subclass instance.\n    assert b.compare(a) == 0\n    assert a.compare(b) == 0\n\n\ndef test_eq_subclass_symmetric():\n    class MyVersion(Version):\n        pass\n\n    a = MyVersion.parse(\"1.0.0\")\n    b = Version.parse(\"1.0.0\")\n\n    assert (b == a) == "
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "submit_test",
+          "args": {
+            "rationale": "The bug report describes an asymmetry in Version.compare()/__eq__ when one side is a Version and the other is an instance of a Version subclass: base.compare(sub) works and returns 0, but sub.compare(base) raises TypeError, and similarly a==b vs b==a disagree. Reading src/semver/version.py, Version.compare() binds `cls = type(self)` and then does `elif not isinstance(other, cls): raise TypeError(."
+          },
+          "result": "submitted"
+        }
+      ],
+      "rationale": "The bug report describes an asymmetry in Version.compare()/__eq__ when one side is a Version and the other is an instance of a Version subclass: base.compare(sub) works and returns 0, but sub.compare(base) raises TypeError, and similarly a==b vs b==a disagree. Reading src/semver/version.py, Version.compare() binds `cls = type(self)` and then does `elif not isinstance(other, cls): raise TypeError(...)`. When self is a subclass instance, `cls` is the subclass, so a plain Version `other` fails `isinstance(other, cls)` and raises, whereas when self is the base Version, `cls` is Version and any subclass instance passes. This exactly reproduces the reported asymmetry.\n\nI wrote two tests: one exercising `compare()` directly in both directions expecting 0 (the mathematically correct answer since both represent version 1.0.0), and one exercising `==` in both directions expecting True and symmetry. I ran the candidate against the buggy repo with run_test and confirmed both tests fail with the exact TypeError described in the bug report (raised from a.compare(b) inside a==b for the second test), while the \"already working\" direction is also asserted so the test only passes if the fix makes both directions succeed and agree. These assertions encode the behaviour the report says is correct (symmetric comparison/equality across subclass boundaries), so they should pass once the isinstance check is fixed to compare against Version rather than type(self)."
+    },
+    {
+      "case_id": "tabulate-5373ebfa",
+      "verdict": "REPRO",
+      "buggy_rc": 1,
+      "fixed_rc": 0,
+      "buggy_output": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________ test_decimal_preserves_precision_with_floatfmt ________________\n\n    def test_decimal_preserves_precision_with_floatfmt():\n        \"\"\"Regression test: tabulate should format Decimal values with floatfmt\n        while preserving their exact decimal precision, rather than routing\n        them through float() first (which introduces binary floating point\n        rounding drift).\n    \n        See bug report: tabulate([[Decimal(\"99999998999.999980\"), ...]],\n        floatfmt=\".6f\") produced \"99999998999.999985\" instead of the\n        correctly-rounded \"99999998999.999980\".\n        \"\"\"\n        result = tabulate(\n            [[Decimal(\"99999998999.999980\"), 1234.5, 1.2345678, \"inf\"]],\n            floatfmt=\".6f\",\n            tablefmt=\"plain\",\n        )\n    \n        # The Decimal value must be preserved exactly (it already has exactly\n        # 6 decimal digits, so formatting to .6f should not change it at all).\n>       assert \"99999998999.999980\" in result\nE       AssertionError: assert '99999998999.999980' in '99999998999.999985  1234.500000  1.234568  inf'\n\ntest/test_regressgen_candidate.py:24: AssertionError\n=========================== short test summary info ============================\nFAILED test/test_regressgen_candidate.py::test_decimal_preserves_precision_with_floatfmt\n1 failed in 0.09s\n",
+      "fixed_output": ".                                                                        [100%]\n1 passed in 0.08s\n",
+      "test_source": "from decimal import Decimal\n\nfrom tabulate import tabulate\n\n\ndef test_decimal_preserves_precision_with_floatfmt():\n    \"\"\"Regression test: tabulate should format Decimal values with floatfmt\n    while preserving their exact decimal precision, rather than routing\n    them through float() first (which introduces binary floating point\n    rounding drift).\n\n    See bug report: tabulate([[Decimal(\"99999998999.999980\"), ...]],\n    floatfmt=\".6f\") produced \"99999998999.999985\" instead of the\n    correctly-rounded \"99999998999.999980\".\n    \"\"\"\n    result = tabulate(\n        [[Decimal(\"99999998999.999980\"), 1234.5, 1.2345678, \"inf\"]],\n        floatfmt=\".6f\",\n        tablefmt=\"plain\",\n    )\n\n    # The Decimal value must be preserved exactly (it already has exactly\n    # 6 decimal digits, so formatting to .6f should not change it at all).\n    assert \"99999998999.999980\" in result\n\n    # The float-precision-drifted value must NOT appear in the output.\n    assert \"99999998999.999985\" not in result\n\n    # Sanity check: the other values (float, float, and the \"inf\" string)\n    # should still be formatted normally alongside the Decimal.\n    assert \"1234.500000\" in result\n    assert \"1.234568\" in result\n    assert \"inf\" in result\n",
+      "attempts": 1,
+      "seconds": 31.6,
+      "usd": 0.26384,
+      "trajectory": [
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "Decimal"
+          },
+          "result": "0 hits"
+        },
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "floatfmt|_format\\("
+          },
+          "result": "40 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "tabulate/__init__.py",
+            "start": 1300,
+            "end": 1365
+          },
+          "result": "3071 chars"
+        },
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "def _type\\("
+          },
+          "result": "1 hits"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "from decimal import Decimal\nfrom tabulate import tabulate\n\n\ndef test_decimal_preserves_precision_with_floatfmt():\n    result = tabulate(\n        [[Decimal(\"99999998999.999980\"), 1234.5, 1.2345678, \"inf\"]],\n        floatfmt=\".6f\",\n        tablefmt=\"plain\",\n    )\n    assert \"99999998999.999980\" in result\n    assert \"99999998999.999985\" not in result\n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "submit_test",
+          "args": {
+            "rationale": "The bug is in tabulate/__init__.py's _format function: for valtype float, non-colored values go through `format(float(val), floatfmt)`. When val is a Decimal, converting it to a Python float loses precision (binary floating point cannot exactly represent 99999998999.999980), so the .6f-formatted output ends up as 99999998999.999985 instead of the exact 99999998999.999980. The correct fix should fo"
+          },
+          "result": "submitted"
+        }
+      ],
+      "rationale": "The bug is in tabulate/__init__.py's _format function: for valtype float, non-colored values go through `format(float(val), floatfmt)`. When val is a Decimal, converting it to a Python float loses precision (binary floating point cannot exactly represent 99999998999.999980), so the .6f-formatted output ends up as 99999998999.999985 instead of the exact 99999998999.999980. The correct fix should format Decimal values directly (Decimal supports the 'f' format spec natively with full precision) instead of coercing through float(). This test reproduces the exact example from the bug report, asserting the correct (precision-preserving) output appears and the float-drifted output does not, while also confirming the other column values in the same row still format correctly. Running this test against the current buggy code fails exactly as expected (result contains ...999985 instead of ...999980), confirming it targets the reported defect."
+    },
+    {
+      "case_id": "tabulate-87a9a4e0",
+      "verdict": "REPRO",
+      "buggy_rc": 1,
+      "fixed_rc": 0,
+      "buggy_output": "ill, by default, set the width of each column to the length of the\n        longest element in that column. However, in situations where fields are expected\n        to reasonably be too long to look good as a single line, tabulate can help automate\n        word wrapping long fields for you. Use the parameter `maxcolwidth` to provide a\n        list of maximal column widths\n    \n        >>> print(tabulate( \\\n              [('1', 'John Smith', \\\n                'This is a rather long description that might look better if it is wrapped a bit')], \\\n              headers=(\"Issue Id\", \"Author\", \"Description\"), \\\n              maxcolwidths=[None, None, 30], \\\n              tablefmt=\"grid\"  \\\n            ))\n        +------------+------------+-------------------------------+\n        |   Issue Id | Author     | Description                   |\n        +============+============+===============================+\n        |          1 | John Smith | This is a rather long         |\n        |            |            | description that might look   |\n        |            |            | better if it is wrapped a bit |\n        +------------+------------+-------------------------------+\n    \n        Header column width can be specified in a similar way using `maxheadercolwidth`\n    \n        \"\"\"\n    \n        if tabular_data is None:\n            tabular_data = []\n    \n        list_of_lists, headers, headers_pad = _normalize_tabular_data(\n            tabular_data, headers, showindex=showindex\n        )\n        list_of_lists, separating_lines = _remove_separating_lines(list_of_lists)\n    \n        if maxcolwidths is not None:\n            if type(maxcolwidths) is tuple:  # Check if tuple, convert to list if so\n                maxcolwidths = list(maxcolwidths)\n            if len(list_of_lists):\n                num_cols = len(list_of_lists[0])\n            else:\n                num_cols = 0\n            if isinstance(maxcolwidths, int):  # Expand scalar for all columns\n                maxcolwidths = _expand_iterable(maxcolwidths, num_cols, maxcolwidths)\n            else:  # Ignore col width for any 'trailing' columns\n                maxcolwidths = _expand_iterable(maxcolwidths, num_cols, None)\n    \n            numparses = _expand_numparse(disable_numparse, num_cols)\n            list_of_lists = _wrap_text_to_colwidths(\n                list_of_lists,\n                maxcolwidths,\n                numparses=numparses,\n                missingval=missingval,\n                break_long_words=break_long_words,\n                break_on_hyphens=break_on_hyphens,\n            )\n    \n        if maxheadercolwidths is not None:\n>           num_cols = len(list_of_lists[0])\n                           ^^^^^^^^^^^^^^^^\nE           IndexError: list index out of range\n\ntabulate/__init__.py:2291: IndexError\n=========================== short test summary info ============================\nFAILED test/test_regressgen_candidate.py::test_empty_data_with_maxheadercolwidths_does_not_raise\n1 failed in 0.41s\n",
+      "fixed_output": ".                                                                        [100%]\n1 passed in 0.38s\n",
+      "test_source": "\nfrom tabulate import tabulate\n\n\ndef test_empty_data_with_maxheadercolwidths_does_not_raise():\n    \"\"\"\n    Regression test for: calling tabulate() with an empty data list but with\n    maxheadercolwidths set should not raise an error. It should behave the\n    same as when maxheadercolwidths is not passed at all (i.e. just render\n    the header row), consistent with how maxcolwidths already behaves with\n    empty data.\n    \"\"\"\n    headers = [\"one\", \"two\", \"three\"]\n\n    # Should not raise (previously raised IndexError: list index out of range)\n    out = tabulate([], headers=headers, maxheadercolwidths=5)\n\n    # Expected behaviour: identical to not passing maxheadercolwidths at all,\n    # since there are no rows to constrain.\n    expected = tabulate([], headers=headers)\n    assert out == expected\n\n    # Sanity check that the header row was actually rendered.\n    assert \"one\" in out\n    assert \"two\" in out\n    assert \"three\" in out\n",
+      "attempts": 1,
+      "seconds": 22.6,
+      "usd": 0.10939,
+      "trajectory": [
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nfrom tabulate import tabulate\n\ndef test_repro():\n    out = tabulate([], headers=[\"one\", \"two\", \"three\"], maxheadercolwidths=5)\n    print(out)\n    assert \"one\" in out\n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nfrom tabulate import tabulate\n\ndef test_empty_data_with_maxheadercolwidths():\n    out = tabulate([], headers=[\"one\", \"two\", \"three\"], maxheadercolwidths=5)\n    expected = tabulate([], headers=[\"one\", \"two\", \"three\"])\n    assert out == expected\n    assert \"one\" in out\n    assert \"two\" in out\n    assert \"three\" in out\n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "submit_test",
+          "args": {
+            "rationale": "The bug report states that tabulate([], headers=[...], maxheadercolwidths=5) raises an error (IndexError) instead of just rendering the header row, as it does when maxheadercolwidths is omitted. This test calls tabulate with empty data and maxheadercolwidths set, which currently raises IndexError: list index out of range at tabulate/__init__.py (num_cols = len(list_of_lists[0]) when list_of_lists "
+          },
+          "result": "submitted"
+        }
+      ],
+      "rationale": "The bug report states that tabulate([], headers=[...], maxheadercolwidths=5) raises an error (IndexError) instead of just rendering the header row, as it does when maxheadercolwidths is omitted. This test calls tabulate with empty data and maxheadercolwidths set, which currently raises IndexError: list index out of range at tabulate/__init__.py (num_cols = len(list_of_lists[0]) when list_of_lists is empty). On the buggy code, this test fails with that IndexError. On the fixed code, tabulate should handle the empty-list case for maxheadercolwidths the same way it already does for maxcolwidths (treating num_cols as 0 when there are no rows), producing output identical to calling tabulate without maxheadercolwidths, and containing the header text. I verified via run_test that the test currently fails with the exact IndexError described in the bug report, confirming it targets the right code path."
+    },
+    {
+      "case_id": "tabulate-d29909b4",
+      "verdict": "WRONG_EXPECTATION",
+      "buggy_rc": 1,
+      "fixed_rc": 1,
+      "buggy_output": " cells and\n        None cells like normal strings instead of raising an exception.\n    \n        See bug report: using maxcolwidths on a table containing a \"True\"/\"False\"\n        string cell or a None cell crashes inside the internal text-wrapping step\n        (_wrap_text_to_colwidths) because it casts the cell using the type-detection\n        helper (_type) which returns bool/NoneType, and then tries to call\n        .splitlines() on that non-string result.\n        \"\"\"\n        data = [\n            [\"First Entry\", \"True\"],\n            [\"Second Entry\", None],\n        ]\n        headers = [\"Title\", \"When\"]\n    \n        # Should not raise (previously raised AttributeError: 'bool'/'NoneType'\n        # object has no attribute 'splitlines').\n>       result = tabulate(data, headers=headers, tablefmt=\"grid\", maxcolwidths=[7, 5])\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntest/test_regressgen_candidate.py:22: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \ntabulate/__init__.py:2249: in tabulate\n    list_of_lists = _wrap_text_to_colwidths(\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nlist_of_lists = [['First Entry', 'True'], ['Second Entry', None]]\ncolwidths = [7, 5], numparses = [True, True]\n\n    def _wrap_text_to_colwidths(list_of_lists, colwidths, numparses=True):\n        if len(list_of_lists):\n            num_cols = len(list_of_lists[0])\n        else:\n            num_cols = 0\n        numparses = _expand_iterable(numparses, num_cols, True)\n    \n        result = []\n    \n        for row in list_of_lists:\n            new_row = []\n            for cell, width, numparse in zip(row, colwidths, numparses):\n                if _isnumber(cell) and numparse:\n                    new_row.append(cell)\n                    continue\n    \n                if width is not None:\n                    wrapper = _CustomTextWrap(width=width)\n                    # Cast based on our internal type handling. Any future custom\n                    # formatting of types (such as datetimes) may need to be more\n                    # explicit than just `str` of the object. Also doesn't work for\n                    # custom floatfmt/intfmt, nor with any missing/blank cells.\n                    casted_cell = (\n                        str(cell) if _isnumber(cell) else _type(cell, numparse)(cell)\n                    )\n                    wrapped = [\n                        \"\\n\".join(wrapper.wrap(line))\n>                       for line in casted_cell.splitlines()\n                                    ^^^^^^^^^^^^^^^^^^^^^^\n                        if line.strip() != \"\"\n                    ]\nE                   AttributeError: 'bool' object has no attribute 'splitlines'\n\ntabulate/__init__.py:1653: AttributeError\n=========================== short test summary info ============================\nFAILED test/test_regressgen_candidate.py::test_maxcolwidths_with_bool_and_none\n1 failed in 0.10s\n",
+      "fixed_output": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_____________________ test_maxcolwidths_with_bool_and_none _____________________\n\n    def test_maxcolwidths_with_bool_and_none():\n        \"\"\"Regression: maxcolwidths should wrap 'True'/'False' string cells and\n        None cells like normal strings instead of raising an exception.\n    \n        See bug report: using maxcolwidths on a table containing a \"True\"/\"False\"\n        string cell or a None cell crashes inside the internal text-wrapping step\n        (_wrap_text_to_colwidths) because it casts the cell using the type-detection\n        helper (_type) which returns bool/NoneType, and then tries to call\n        .splitlines() on that non-string result.\n        \"\"\"\n        data = [\n            [\"First Entry\", \"True\"],\n            [\"Second Entry\", None],\n        ]\n        headers = [\"Title\", \"When\"]\n    \n        # Should not raise (previously raised AttributeError: 'bool'/'NoneType'\n        # object has no attribute 'splitlines').\n        result = tabulate(data, headers=headers, tablefmt=\"grid\", maxcolwidths=[7, 5])\n    \n        lines = result.splitlines()\n    \n        # The \"True\" cell should be wrapped/rendered as plain text.\n        assert any(\"True\" in line for line in lines)\n    \n        # The None cell should render as blank/empty content, not the literal\n        # string \"None\", and certainly must not have crashed.\n>       assert not any(\"None\" in line for line in lines)\nE       assert not True\nE        +  where True = any(<generator object test_maxcolwidths_with_bool_and_none.<locals>.<genexpr> at 0x10b1a2260>)\n\ntest/test_regressgen_candidate.py:31: AssertionError\n=========================== short test summary info ============================\nFAILED test/test_regressgen_candidate.py::test_maxcolwidths_with_bool_and_none\n1 failed in 0.09s\n",
+      "test_source": "from tabulate import tabulate\n\n\ndef test_maxcolwidths_with_bool_and_none():\n    \"\"\"Regression: maxcolwidths should wrap 'True'/'False' string cells and\n    None cells like normal strings instead of raising an exception.\n\n    See bug report: using maxcolwidths on a table containing a \"True\"/\"False\"\n    string cell or a None cell crashes inside the internal text-wrapping step\n    (_wrap_text_to_colwidths) because it casts the cell using the type-detection\n    helper (_type) which returns bool/NoneType, and then tries to call\n    .splitlines() on that non-string result.\n    \"\"\"\n    data = [\n        [\"First Entry\", \"True\"],\n        [\"Second Entry\", None],\n    ]\n    headers = [\"Title\", \"When\"]\n\n    # Should not raise (previously raised AttributeError: 'bool'/'NoneType'\n    # object has no attribute 'splitlines').\n    result = tabulate(data, headers=headers, tablefmt=\"grid\", maxcolwidths=[7, 5])\n\n    lines = result.splitlines()\n\n    # The \"True\" cell should be wrapped/rendered as plain text.\n    assert any(\"True\" in line for line in lines)\n\n    # The None cell should render as blank/empty content, not the literal\n    # string \"None\", and certainly must not have crashed.\n    assert not any(\"None\" in line for line in lines)\n",
+      "attempts": 1,
+      "seconds": 34.0,
+      "usd": 0.20345,
+      "trajectory": [
+        {
+          "tool": "search_code",
+          "args": {
+            "pattern": "maxcolwidths|_wrap_text_to_colwidths|def _type"
+          },
+          "result": "49 hits"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "test/test_textwrapper.py",
+            "start": 180,
+            "end": 220
+          },
+          "result": "1709 chars"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "tabulate/__init__.py",
+            "start": 955,
+            "end": 1000
+          },
+          "result": "1665 chars"
+        },
+        {
+          "tool": "read_file",
+          "args": {
+            "path": "tabulate/__init__.py",
+            "start": 1626,
+            "end": 1670
+          },
+          "result": "2052 chars"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nfrom tabulate import tabulate\n\ndef test_bug():\n    data = [\n        [\"First Entry\", \"True\"],\n        [\"Second Entry\", None],\n    ]\n    headers = [\"Title\", \"When\"]\n    result = tabulate(data, headers=headers, tablefmt=\"grid\", maxcolwidths=[7, 5])\n    print(result)\n    assert \"True\" in result\n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "run_test",
+          "args": {
+            "test_source": "\nfrom tabulate import tabulate\n\ndef test_maxcolwidths_with_bool_and_none():\n    data = [\n        [\"First Entry\", \"True\"],\n        [\"Second Entry\", None],\n    ]\n    headers = [\"Title\", \"When\"]\n    result = tabulate(data, headers=headers, tablefmt=\"grid\", maxcolwidths=[7, 5])\n    print(result)\n    lines = result.splitlines()\n    assert any(\"True\" in line for line in lines)\n    # None should render as blank cell content, not crash and not literal \"None\"\n    assert not any(\"None\" in line for line in lines)\n"
+          },
+          "result": "FAILED (exit 1)"
+        },
+        {
+          "tool": "submit_test",
+          "args": {
+            "rationale": "The report says tabulate(..., maxcolwidths=[...]) crashes when a cell is the string \"True\"/\"False\" or None, because the internal wrapping helper _wrap_text_to_colwidths casts the cell via _type(cell, numparse)(cell) before calling .splitlines() on it. For a \"True\"/\"False\" string this cast produces a bool (bool has no splitlines), and for None it produces None (NoneType has no splitlines), so both "
+          },
+          "result": "submitted"
+        }
+      ],
+      "rationale": "The report says tabulate(..., maxcolwidths=[...]) crashes when a cell is the string \"True\"/\"False\" or None, because the internal wrapping helper _wrap_text_to_colwidths casts the cell via _type(cell, numparse)(cell) before calling .splitlines() on it. For a \"True\"/\"False\" string this cast produces a bool (bool has no splitlines), and for None it produces None (NoneType has no splitlines), so both raise AttributeError instead of producing wrapped text output. The test reproduces the exact minimal repro from the report and asserts the expected fixed behavior: no exception is raised, the \"True\" text is present in the wrapped output, and the None cell renders as blank content rather than crashing or the literal string \"None\". I verified this test fails on the current buggy code with AttributeError: 'bool' object has no attribute 'splitlines', matching the reported crash location precisely."
+    }
+  ]
+}
