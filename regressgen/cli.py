@@ -176,17 +176,53 @@ def cmd_solve(a) -> int:
     return 0 if proven else 2
 
 
+def _plain(md: str) -> str:
+    """Render markdown tables as aligned plain text for a terminal.
+
+    `report` doubles as the source for the README, so its natural output is
+    markdown. Pipes and `**bold**` are unreadable on a screen recording, so the
+    CLI realigns them unless the output is being piped somewhere.
+    """
+    out, block = [], []
+
+    def flush():
+        if not block:
+            return
+        rows = [[c.strip().replace("**", "") for c in r.strip().strip("|").split("|")]
+                for r in block if not set(r.strip()) <= set("|-: ")]
+        if rows:
+            w = [max(len(r[i]) for r in rows if i < len(r))
+                 for i in range(max(len(r) for r in rows))]
+            for n, r in enumerate(rows):
+                line = "  ".join(c.ljust(w[i]) for i, c in enumerate(r))
+                out.append("  " + line.rstrip())
+                if n == 0:
+                    out.append("  " + "  ".join("-" * x for x in w))
+        block.clear()
+
+    for line in md.splitlines():
+        if line.startswith("|"):
+            block.append(line)
+        else:
+            flush()
+            out.append(line)
+    flush()
+    return "\n".join(out)
+
+
 def cmd_report(a) -> int:
-    print(scoreboard())
+    fmt = _plain if sys.stdout.isatty() and not a.markdown else (lambda x: x)
+    print(fmt(scoreboard()))
     print()
     print("### Failure modes (most recent run of each system)\n")
-    print(verdict_breakdown())
+    print(fmt(verdict_breakdown()))
     print()
     print("### How much is one run worth?\n")
-    print(stability())
+    print(fmt(stability()))
     print()
-    print(per_case())
-    print()
+    if a.per_case:
+        print(fmt(per_case()))
+        print()
     print("### Paired significance (exact McNemar)\n")
     from .report import SYSTEMS as _S
     from .report import load
@@ -243,7 +279,12 @@ def main() -> int:
     so.add_argument("--out", default=None, help="write the test here (default: print only)")
     so.set_defaults(fn=cmd_solve)
 
-    sub.add_parser("report", help="print the comparison table").set_defaults(fn=cmd_report)
+    rp = sub.add_parser("report", help="print the comparison table")
+    rp.add_argument("--markdown", action="store_true",
+                    help="emit raw markdown instead of an aligned table")
+    rp.add_argument("--per-case", action="store_true",
+                    help="also print the 44-row per-case grid")
+    rp.set_defaults(fn=cmd_report)
 
     a = ap.parse_args()
     return a.fn(a)

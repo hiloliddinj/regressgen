@@ -33,7 +33,11 @@ uv run regressgen show boltons-c1c25da3
 > **"A real bug in a real library. `Bits(4, 2)` should raise an error — four
 > doesn't fit in two bits. It doesn't raise."**
 
-*(point at the commit URL)*
+*Point at line 8 of the output — the one starting `commit`:*
+
+```
+commit    https://github.com/mahmoud/boltons/commit/c1c25da365cf...
+```
 
 > **"That's the actual upstream commit. The fix is one character: greater-than
 > becomes greater-or-equal."**
@@ -58,7 +62,12 @@ uv run regressgen validate --case boltons-c1c25da3 --case semver-bc41390f
 > already works passes both. Only a test that pins down correct behaviour
 > survives."**
 
-*(point at I1 / I2)*
+*Point at `I1=True  I2=True` on either verdict line:*
+
+```
+[ 1/2] OK   boltons-c1c25da3    I1=True  I2=True  I3=True  I4=True
+                                ^^^^^^^^^^^^^^^^
+```
 
 > **"Forty-four real bugs. I1 and I2 say the library's own test suite is green
 > on both sides — the bug shipped, undetected. You can't find it by running the
@@ -72,10 +81,21 @@ uv run regressgen validate --case boltons-c1c25da3 --case semver-bc41390f
 uv run regressgen report
 ```
 
+Prints an aligned table in a terminal (markdown only when piped), and the
+44-row per-case grid is hidden unless you pass `--per-case` — so nothing
+scrolls off screen.
+
 > **"The baseline is what you'd do today: one prompt, the report, the whole
 > source file — more than the agent gets. It's already good. Eighty percent."**
 
-*(point at the Silent failures column)*
+*Point at the fifth column, `Silent failures` — the `1.7` and the `0.0`:*
+
+```
+  System                           Repro rate      Range   Runs  Silent failures
+  Baseline (one prompt, no tools)  35.3/44  (80%)  77–82%  3     1.7
+  v4  + right-reason check         40.0/44  (91%)  89–93%  3     0.0
+                                                                 ^^^
+```
 
 > **"This column is the one I care about. One point seven per run. Tests that
 > pass on the broken code. You run pytest, see green, commit — and you have no
@@ -99,12 +119,13 @@ uv run regressgen solve --repo cases/boltons-c1c25da3/buggy --report cases/bolto
 > **"Then the part that matters — it reads *why* it failed. Not that it failed.
 > Why."**
 
-*(point at the rationale)*
+*Point at the `Agent's rationale:` block near the bottom — the phrase
+"off-by-one in Bits.__init__'s bounds check":*
 
 > **"Off-by-one in the bounds check. That's exactly the one-character fix from
 > step one."**
 
-*(point at the review banner)*
+*Point at the last box — `REVIEW BEFORE USE`:*
 
 > **"And it stops. Won't touch your repo unless you pass `--out`. The agent
 > asserts what it *believes* correct behaviour is — that judgement stays mine.
@@ -118,13 +139,20 @@ uv run regressgen solve --repo cases/boltons-c1c25da3/buggy --report cases/bolto
 uv run regressgen show semver-bc41390f --spoil
 ```
 
-*(scroll to the bug report first)*
+*The output has two halves. Stay on the top half — `BUG REPORT` — first:*
 
 > **"Subclass a Version, compare both directions, get different answers. Every
 > system I built asserts the obvious thing: both directions should work and
 > agree."**
 
-*(scroll to HELD-OUT ORACLE)*
+*Now scroll to the second half — `HELD-OUT ORACLE`. Point at the
+`with pytest.raises(TypeError):` line:*
+
+```
+    with pytest.raises(TypeError):
+        SemVerSubclass.parse("1.0.0").compare(Version.parse("1.0.0"))
+    ^^^^ still raises, even after the fix
+```
 
 > **"The maintainer did something else. `compare()` still raises — look, they
 > assert the TypeError. Only equality became symmetric, through Python's
