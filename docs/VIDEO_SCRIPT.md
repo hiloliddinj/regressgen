@@ -12,6 +12,40 @@ Long pauses while output scrolls are fine — better than talking over it.
 | agent | solves it | **cannot** solve it, ever |
 | used in | steps 1, 2, 4 | steps 2, 5 |
 
+## What's on screen
+
+**A terminal, full screen, for steps 1–5. One browser tab for step 6. That's it.**
+You do not need VS Code — nothing in this video is source code you read.
+
+Terminal settings (measured against the actual output):
+
+| | |
+|---|---|
+| width | **110 columns** — the results table is 96 chars and must not wrap |
+| height | **45 rows** — `report` is 34 lines and should fit without scrolling |
+| font | 15–16pt, dark theme |
+| between steps | type `clear` so each command starts on a clean screen |
+
+Output sizes, so nothing surprises you:
+
+| command | lines | fits on screen? |
+|---|---:|---|
+| `show boltons-c1c25da3` | 28 | yes |
+| `validate --case … --case …` | 6 | yes |
+| `report` | 34 | yes, at 45 rows |
+| `solve …` | ~35 | yes |
+| `show semver… --spoil` | 58 | **no — you will scroll. That's the point of the step.** |
+
+**The one window switch.** Before recording, open
+`https://github.com/hiloliddinj/regressgen` in a browser and scroll to the
+**Improvement changelog** table. Leave it there. At step 6, switch to it once
+and stay. GitHub renders the table properly, and showing the live public repo at
+the end is worth something on its own.
+
+If switching windows makes you nervous: skip step 6 entirely, stay in the
+terminal, and say the same lines over the `report` output still on screen. The
+video works without it.
+
 ## Before recording
 
 ```bash
