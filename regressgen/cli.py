@@ -45,10 +45,21 @@ def cmd_show(a) -> int:
     print(f"\n{'-' * 72}\nBUG REPORT (this is all the agent gets)\n{'-' * 72}")
     print(c.report.strip())
     if a.spoil:
-        print(f"\n{'-' * 72}\nHELD-OUT ORACLE — the maintainer's own regression test\n{'-' * 72}")
-        for f in c.oracle_tests:
-            print(f"\n### {f.name}\n")
-            print(f.read_text()[:4000])
+        print(f"\n{'-' * 72}\nHELD-OUT ORACLE — what the maintainer added when they "
+              f"fixed it\n{'-' * 72}")
+        # The buggy tree carries the parent commit's tests, so diffing the oracle
+        # against it isolates exactly the lines the maintainer added. Printing the
+        # whole upstream test file instead would bury the answer under a hundred
+        # lines of pre-existing tests.
+        import difflib
+        for rel, src in c.oracle_at_original_paths.items():
+            before = (c.buggy / rel)
+            old = before.read_text().splitlines() if before.exists() else []
+            added = [ln[1:] for ln in difflib.unified_diff(
+                old, src.splitlines(), n=0, lineterm="") if ln.startswith("+")
+                and not ln.startswith("+++")]
+            print(f"\n### added to {rel}\n")
+            print("\n".join(added) if added else "(whole file is new)")
     else:
         print("\n(the held-out fix and oracle test are hidden; pass --spoil to see them)")
     return 0
