@@ -17,14 +17,27 @@ Long pauses while output scrolls are fine — better than talking over it.
 **A terminal, full screen, for steps 1–5. One browser tab for step 6. That's it.**
 You do not need VS Code — nothing in this video is source code you read.
 
-Terminal settings (measured against the actual output):
+**Font size is the thing that matters, not window size.** A big window with
+small text is unreadable once the video is compressed. Set a comfortable font
+first; the window dimensions follow.
 
-| | |
-|---|---|
-| width | **110 columns** — the results table is 96 chars and must not wrap |
-| height | **45 rows** — `report` is 34 lines and should fit without scrolling |
-| font | 15–16pt, dark theme |
-| between steps | type `clear` so each command starts on a clean screen |
+Check what you have:
+
+```bash
+echo "columns: $(tput cols)   rows: $(tput lines)"
+```
+
+These are *minimums*. Bigger is fine — only narrower hurts.
+
+| | minimum | why |
+|---|---|---|
+| width | **100 columns** | the results table is 96 chars; below that it wraps and looks broken |
+| height | **40 rows** | `report` is 34 lines; below that it scrolls mid-sentence |
+| font | 15–16pt, dark | anything smaller is unreadable in a compressed recording |
+| between steps | type `clear` | each command starts on a clean screen |
+
+110 × 45 is roughly what a full-screen MacBook Pro gives you at 16pt. If yours
+is already larger at a readable font, change nothing.
 
 Output sizes, so nothing surprises you:
 
