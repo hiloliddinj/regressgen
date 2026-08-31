@@ -43,14 +43,21 @@ Show the verdict table in the README.
 
 Run the corpus's own proof:
 
+Run two cases, not all 44 — the full run is 15 minutes and you do not have them:
+
 ```bash
-uv run regressgen validate
+uv run regressgen validate --case boltons-c1c25da3 --case semver-bc41390f
 ```
 
-> "17 cases, each a real bug a real maintainer really fixed. This re-proves the
-> ground truth from scratch — no model calls, no cost. The existing test suite
-> is green on both sides of every case, so the bug ships undetected and you
-> can't find it by running the tests that are already there."
+> "Forty-four cases, each a real bug a real maintainer really fixed. This
+> re-proves the ground truth from scratch — four pytest runs per case, no model
+> calls, no cost. I'm running two here; the full set takes fifteen minutes and
+> prints the same thing.
+>
+> The important line is I1 and I2: the project's *existing* test suite is green
+> on both sides of every case. The bug ships undetected. You cannot find it by
+> running the tests that are already there — the agent has to construct a new
+> input that exposes it."
 
 ## 1:15–1:55 — The baseline
 
