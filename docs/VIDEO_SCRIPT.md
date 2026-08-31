@@ -1,262 +1,223 @@
-# Video script — 6 commands, ~4:30
+# Video script
 
-Terse by design. Say the bold lines, let the terminal do the rest.
-Long pauses while output scrolls are fine — better than talking over it.
+Read the **SAY** lines out loud, word for word. Type the **TYPE** lines.
+No mouse, no pointing — just talk while the output sits on screen.
 
-**Two bugs carry the whole video:**
+**Timing.** Steps 1–5 are about **3 minutes 30**. Step 6 adds about **1 minute**.
+Total ~4:30, under the 5:00 limit.
 
-| | `boltons-c1c25da3` | `semver-bc41390f` |
-|---|---|---|
-| bug | `Bits(4, 2)` should raise; doesn't | subclass comparison is asymmetric |
-| real fix | `>` → `>=` | `Version` → `type(self)` |
-| agent | solves it | **cannot** solve it, ever |
-| used in | steps 1, 2, 4 | steps 2, 5 |
+If you fluff lines or talk slower than planned, **stop after step 5 and skip
+step 6.** Steps 1–5 tell the whole story. Going over 5:00 is the only thing that
+can disqualify the video.
 
-## What's on screen
+---
 
-**A terminal, full screen, for steps 1–5. One browser tab for step 6. That's it.**
-You do not need VS Code — nothing in this video is source code you read.
+## BEFORE RECORDING
 
-**Font size is the thing that matters, not window size.** A big window with
-small text is unreadable once the video is compressed. Set a comfortable font
-first; the window dimensions follow.
-
-Check what you have:
+Big font (16pt). Window as large as it goes. Run these once — the second must
+print `AUTH_OK`:
 
 ```bash
-echo "columns: $(tput cols)   rows: $(tput lines)"
-```
-
-These are *minimums*. Bigger is fine — only narrower hurts.
-
-| | minimum | why |
-|---|---|---|
-| width | **100 columns** | the results table is 96 chars; below that it wraps and looks broken |
-| height | **40 rows** | `report` is 34 lines; below that it scrolls mid-sentence |
-| font | 15–16pt, dark | anything smaller is unreadable in a compressed recording |
-| between steps | type `clear` | each command starts on a clean screen |
-
-110 × 45 is roughly what a full-screen MacBook Pro gives you at 16pt. If yours
-is already larger at a readable font, change nothing.
-
-Output sizes, so nothing surprises you:
-
-| command | lines | fits on screen? |
-|---|---:|---|
-| `show boltons-c1c25da3` | 28 | yes |
-| `validate --case … --case …` | 6 | yes |
-| `report` | 34 | yes, at 45 rows |
-| `solve …` | ~35 | yes |
-| `show semver… --spoil` | 58 | **no — you will scroll. That's the point of the step.** |
-
-**The one window switch.** Before recording, open
-`https://github.com/hiloliddinj/regressgen` in a browser and scroll to the
-**Improvement changelog** table. Leave it there. At step 6, switch to it once
-and stay. GitHub renders the table properly, and showing the live public repo at
-the end is worth something on its own.
-
-If switching windows makes you nervous: skip step 6 entirely, stay in the
-terminal, and say the same lines over the `report` output still on screen. The
-video works without it.
-
-## Before recording
-
-```bash
-cd ~/Desktop/micro1 && uv sync && uv run regressgen report >/dev/null
+cd ~/Desktop/micro1 && uv sync && uv run regressgen report > /dev/null
 ```
 
 ```bash
 claude -p "Reply with exactly: AUTH_OK" --max-turns 1
 ```
 
+Type `clear`. Start recording.
+
 ---
 
-# 1 · 0:00 — The problem
+## STEP 1
+
+**TYPE:**
 
 ```bash
 uv run regressgen show boltons-c1c25da3
 ```
 
-> **"A real bug in a real library. `Bits(4, 2)` should raise an error — four
-> doesn't fit in two bits. It doesn't raise."**
+**WAIT** for the output.
 
-*Point at line 8 of the output — the one starting `commit`:*
+**SAY:**
 
-```
-commit    https://github.com/mahmoud/boltons/commit/c1c25da365cf...
-```
+> "A real bug in a real Python library. There's the link to the actual commit
+> that fixed it — one character.
+>
+> `Bits(4, 2)` should raise an error, because four doesn't fit in two bits. It
+> doesn't. It quietly returns the wrong thing.
+>
+> Before fixing a bug you should write a test that fails because of it. Almost
+> nobody does — and not from laziness. A test that fails because I mistyped a
+> function name looks exactly like one that found the bug. Both are just red."
 
-> **"That's the actual upstream commit. The fix is one character: greater-than
-> becomes greater-or-equal."**
-
-> **"Before fixing it I'm supposed to write a test that fails because of it.
-> Nobody does. The reason isn't laziness — a test that fails because I mistyped
-> a method name looks exactly like a test that found the bug. Same red bar."**
+**TYPE:** `clear`
 
 ---
 
-# 2 · 0:45 — How it's graded
+## STEP 2
+
+**TYPE:**
 
 ```bash
 uv run regressgen validate --case boltons-c1c25da3 --case semver-bc41390f
 ```
 
-> **"So I built the grader first. Every test runs twice — against the broken
-> code, where it must fail, and the fixed code, where it must pass. The agent
-> only ever sees the broken half."**
+**WAIT** — 8 seconds.
 
-> **"That pair can't be gamed. `assert False` fails both. A test of code that
-> already works passes both. Only a test that pins down correct behaviour
-> survives."**
+**SAY:**
 
-*Point at `I1=True  I2=True` on either verdict line:*
+> "So I built the grader first.
+>
+> Every test runs twice. Against the broken code, where it must fail. Against the
+> fixed code, where it must pass. The agent only ever sees the broken version.
+>
+> That can't be cheated. `assert False` fails both — scores nothing. A test of
+> something that already works passes both — also nothing. Only a test that says
+> what the code *should* do survives.
+>
+> Those first two checks mean the library's own test suite is green on both
+> versions. This bug shipped undetected. You can't find it with the tests that
+> already exist. Forty-four bugs like this, from seven real libraries."
 
-```
-[ 1/2] OK   boltons-c1c25da3    I1=True  I2=True  I3=True  I4=True
-                                ^^^^^^^^^^^^^^^^
-```
-
-> **"Forty-four real bugs. I1 and I2 say the library's own test suite is green
-> on both sides — the bug shipped, undetected. You can't find it by running the
-> tests that already exist."**
+**TYPE:** `clear`
 
 ---
 
-# 3 · 1:20 — The baseline
+## STEP 3
+
+**TYPE:**
 
 ```bash
 uv run regressgen report
 ```
 
-Prints an aligned table in a terminal (markdown only when piped), and the
-44-row per-case grid is hidden unless you pass `--per-case` — so nothing
-scrolls off screen.
+**SAY:**
 
-> **"The baseline is what you'd do today: one prompt, the report, the whole
-> source file — more than the agent gets. It's already good. Eighty percent."**
+> "Top row is the baseline — one prompt, with the whole source file. More than my
+> agent gets, deliberately. It's already good: eighty percent. Mine is
+> ninety-one.
+>
+> But look at silent failures. The baseline makes one point seven per run — tests
+> that *pass* on the broken code. You run pytest, see green, commit, and you have
+> no coverage. Reading it, you can't tell.
+>
+> Mine is zero. Every run."
 
-*Point at the fifth column, `Silent failures` — the `1.7` and the `0.0`:*
-
-```
-  System                           Repro rate      Range   Runs  Silent failures
-  Baseline (one prompt, no tools)  35.3/44  (80%)  77–82%  3     1.7
-  v4  + right-reason check         40.0/44  (91%)  89–93%  3     0.0
-                                                                 ^^^
-```
-
-> **"This column is the one I care about. One point seven per run. Tests that
-> pass on the broken code. You run pytest, see green, commit — and you have no
-> coverage. Reading the test, you can't tell."**
-
-> **"The agent's number there is zero. Every run."**
+**TYPE:** `clear`
 
 ---
 
-# 4 · 1:55 — The agent, live
+## STEP 4
+
+**TYPE** (one long line — copy it whole):
 
 ```bash
 uv run regressgen solve --repo cases/boltons-c1c25da3/buggy --report cases/boltons-c1c25da3/report.md --tests-dir tests
 ```
 
-*(let it run — 4 tool calls, about a minute; narrate lightly)*
+**WAIT** about a minute. Talk while it runs:
 
-> **"Searches. Reads the real implementation instead of guessing. Writes a test.
-> Runs it."**
+> "The real tool. It gets the broken library and the bug report, nothing else.
+>
+> It searches, reads the actual code instead of guessing, writes a test, runs it.
+>
+> Then the part that matters — it reads *why* it failed. Not that it failed. Why."
 
-> **"Then the part that matters — it reads *why* it failed. Not that it failed.
-> Why."**
+**WAIT** for it to finish, then **SAY:**
 
-*Point at the `Agent's rationale:` block near the bottom — the phrase
-"off-by-one in Bits.__init__'s bounds check":*
+> "There's the test. The rationale says off-by-one in the bounds check — exactly
+> the one-character fix from the start.
+>
+> Then it stops for review. It won't touch my repo unless I say so, because it's
+> asserting what it *believes* is correct. That judgement is still mine. Here's
+> why that matters."
 
-> **"Off-by-one in the bounds check. That's exactly the one-character fix from
-> step one."**
-
-*Point at the last box — `REVIEW BEFORE USE`:*
-
-> **"And it stops. Won't touch your repo unless you pass `--out`. The agent
-> asserts what it *believes* correct behaviour is — that judgement stays mine.
-> Here's why that matters."**
+**TYPE:** `clear`
 
 ---
 
-# 5 · 3:00 — The one it can't solve
+## STEP 5
+
+**TYPE:**
 
 ```bash
 uv run regressgen show semver-bc41390f --spoil
 ```
 
-*The output has two halves. Stay on the top half — `BUG REPORT` — first:*
+**WAIT.** Scroll slowly down while you talk.
 
-> **"Subclass a Version, compare both directions, get different answers. Every
-> system I built asserts the obvious thing: both directions should work and
-> agree."**
+**SAY:**
 
-*Now scroll to the second half — `HELD-OUT ORACLE`. Point at the
-`with pytest.raises(TypeError):` line:*
+> "Different bug. Subclass a Version, compare two of them, and the answer depends
+> on which one is on the left.
+>
+> Every version of my agent says both directions should work and agree. The
+> obvious reading.
+>
+> Here's what the maintainer actually did. They left it raising — their test
+> expects a TypeError. They only fixed equality, through a Python fallback.
+>
+> That's a design decision. It isn't in the report and never could be. Twelve
+> runs, six configurations, all wrong. Not a case it sometimes misses — one it
+> cannot get. That's why a human reviews."
 
-```
-    with pytest.raises(TypeError):
-        SemVerSubclass.parse("1.0.0").compare(Version.parse("1.0.0"))
-    ^^^^ still raises, even after the fix
-```
-
-> **"The maintainer did something else. `compare()` still raises — look, they
-> assert the TypeError. Only equality became symmetric, through Python's
-> NotImplemented fallback."**
-
-> **"That's a design decision. It's not in the report and couldn't be. Twelve
-> runs, six configurations, every one fails this case. That's not a case the
-> agent sometimes misses — it's one it can't get. That's why a human reviews."**
+**TYPE:** `clear`
 
 ---
 
-# 6 · 3:45 — What I learned
+## STEP 6 — OPTIONAL, skip if you are near 4 minutes
 
-*(show the Improvement changelog table in README.md)*
+**TYPE:**
 
-> **"Six versions. Three of them taught me I was wrong."**
+```bash
+uv run regressgen report
+```
 
-> **"Biggest jump: letting it read the repository."**
+**SAY:**
 
-> **"Then I added execution — let it run its own test. It got *worse*. The agent
-> only sees half the goal: it can check the test fails, not that it fails for
-> the right reason. It saw FAILED and stopped."**
+> "Six versions. Three taught me I was wrong.
+>
+> Biggest win: letting it read the repository.
+>
+> Then I let it run its own tests — that made it *worse*. It only sees half the
+> goal. It can check its test fails, not that it fails for the right reason. It
+> saw FAILED and stopped.
+>
+> Then I let it patch the bug itself to confirm its test went green. Changed
+> nothing, cost sixty percent more. It wrote patches that made its own wrong
+> answers true.
+>
+> Then a separate reviewer agent. Identical answer on all seventeen cases, twice
+> the cost. On that semver bug it traced the code correctly, then approved a test
+> that fails against the real fix.
+>
+> Three verification mechanisms, all removed. What worked was a hundred and fifty
+> words telling the agent what its verifier couldn't see.
+>
+> Verification inside the agent's own reasoning makes it more confident, not more
+> correct. Thanks for watching."
 
-> **"Then I let it patch the bug itself and check its test goes green. Changed
-> nothing, sixty percent more cost. It wrote patches that made its own wrong
-> answers true."**
-
-> **"Then a separate reviewer agent, fresh context. Identical verdict on all
-> seventeen cases, twice the cost. On the semver bug it traced the code
-> correctly — and approved a test that fails against the real fix."**
-
-# 4:25 — Close
-
-> **"Three verification mechanisms. All three removed. What worked was a hundred
-> and fifty words telling the agent what its verifier couldn't see."**
-
-> **"Verification inside the agent's own reasoning raises its confidence, not
-> its accuracy. A fresh context is not fresh priors."**
-
-*(leave the scoreboard on screen)*
+**STOP RECORDING.**
 
 ---
 
-## Numbers, if you need them
+## If something goes wrong
 
-| | baseline | agent |
+- **`solve` hangs or errors** → Claude login expired. Re-run the `AUTH_OK` check,
+  then re-record step 4 only.
+- **The table wraps onto two lines** → terminal too narrow. Widen it, or drop the
+  font one point.
+- **Over 5 minutes** → cut step 6. Steps 1–5 tell the whole story.
+- **You fluff a line** → `clear`, redo that step. It's only 4 minutes; re-recording
+  from the top is fine.
+
+## Numbers, if anyone asks
+
+| | baseline | my agent |
 |---|---|---|
-| repro rate | 80% (77–82%) | **91%** (89–93%) |
-| silent failures | 1.7 | **0.0** |
-| run-to-run agreement | 88% | 95% |
+| tests that reproduce the bug | 80% | **91%** |
+| tests that silently pass on broken code | 1.7 per run | **0.0** |
 | cost per test | $0.08 | $0.22 |
 
-McNemar over 3 paired runs: 19 fixed, 5 broken, **p = 0.0066**. Single run: p = 0.23.
-
-## Don't
-
-- Don't run the baseline or full `validate` live — minutes long.
-- Don't add a third bug.
-- Don't talk over scrolling output. Pause, then speak.
-- Hard limit 5:00. Cut step 6 before you cut step 4.
+44 real bugs, 3 runs each. Significance: p = 0.0066.
