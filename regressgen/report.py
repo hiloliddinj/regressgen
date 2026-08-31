@@ -101,7 +101,13 @@ def scoreboard() -> str:
             + "*Silent failures* are tests that pass when run against the buggy "
             "code (VACUOUS + INVERTED) — a developer runs pytest, sees green, "
             "and commits believing they have coverage they do not have. Every "
-            "other failure mode is loud."]
+            "other failure mode is loud.",
+            "",
+            "*$/case* is what `claude-agent-sdk` reports as `total_cost_usd`: the "
+            "value of the tokens consumed at Anthropic API list prices. It is a "
+            "usage measurement, not an invoice — running this against a Claude "
+            "subscription draws on that plan's quota rather than billing the "
+            "amount shown."]
     return "\n".join(out)
 
 

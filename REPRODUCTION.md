@@ -209,6 +209,20 @@ costs about $0.40 in model calls. Because it mines by date window, re-running it
 later against newer upstream history can yield a *different* set of cases — the
 committed corpus is the frozen one all reported numbers refer to.
 
+### What the dollar figures mean
+
+Every cost in this repository is `total_cost_usd` as reported by
+`claude-agent-sdk` — the value of the tokens consumed, priced at Anthropic API
+list rates. It is a usage measurement, chosen because it is comparable between
+systems and reproducible by anyone.
+
+It is not necessarily what you will be charged. Running this through a Claude
+Code login draws on that plan's quota; the dollar figure is what the same tokens
+would cost through the API. With `ANTHROPIC_API_KEY` set, it is a real bill.
+
+Total for every run behind the reported numbers, including the ones that were
+superseded: about $78.
+
 ## Determinism, and what it costs
 
 Model calls are not deterministic, so repeated runs vary. Everything around them

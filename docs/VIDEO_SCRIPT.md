@@ -29,6 +29,10 @@ claude -p "Reply with exactly: AUTH_OK" --max-turns 1
 
 Have two terminal tabs ready. Do one silent practice run of the five commands.
 
+Only step 4 calls a model. On a Claude subscription that draws on your usage
+quota rather than billing you — but it is quota, and running out mid-recording
+is avoidable. One practice run plus one take is plenty.
+
 ---
 
 ## 0:00–0:40 — The problem

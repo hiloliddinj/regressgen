@@ -174,6 +174,8 @@ Full detail, provenance and licensing: [docs/CORPUS.md](docs/CORPUS.md).
 | v4  + right-reason check | **40.0/44  (91%)** | 89–93% | 3 | 0.0 | $0.215 | 49 |
 
 Repro rate is the mean over all stored runs of that system; *Range* is the lowest and highest single run. *Silent failures* are tests that pass when run against the buggy code (VACUOUS + INVERTED) — a developer runs pytest, sees green, and commits believing they have coverage they do not have. Every other failure mode is loud.
+
+*$/case* is what `claude-agent-sdk` reports as `total_cost_usd`: the value of the tokens consumed at Anthropic API list prices. It is a usage measurement, not an invoice — running this against a Claude subscription draws on that plan's quota rather than billing the amount shown.
 <!-- END:scoreboard -->
 
 Failure modes, most recent run of each system:
